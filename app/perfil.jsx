@@ -1,7 +1,11 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-
+import { getAuth } from 'firebase/auth';
 export default function Profile () {
+  // Devolvemos el usuario autenticado
+  const auth = getAuth();
+  const user = auth.currentUser;
+
   // Definiciones de los nombres de las opciones con sus imágenes correspondientes
   const screenOptions = {
     Información_Personal: {
@@ -36,7 +40,8 @@ export default function Profile () {
       <Text style={styles.title0}>Profile</Text>
       <View style={styles.ViewProfImage}>
         <Image style={styles.ImageProfile} source={require('../assets/images/logo.png')} />
-        <Text style={styles.title}>Juancho Pérez</Text>
+        <Text style={styles.title}>Juancho </Text>
+        <Text>Correo: {user.email}</Text>
       </View>
       <View style={styles.ViewSettings}>
         <Text style={styles.title2}>Settings</Text>

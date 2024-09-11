@@ -36,6 +36,7 @@ export default function Layout() {
       <Stack.Screen name="register" options={{ headerShown: false }} />
 
       <Stack.Screen name="home" options={{ headerShown: false }} />
+      <Stack.Screen name="perfil" options={{ headerShown: false }} />
       <Stack.Screen name="depositar" options={{ headerShown: false }} />
       <Stack.Screen name="retirar" options={{ headerShown: false }} />
       <Stack.Screen name="transferir" options={{ headerShown: false }} />

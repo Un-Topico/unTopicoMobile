@@ -41,6 +41,9 @@ export default function Home () {
     router.push('reportes')
     // Implementa la navegación a la pantalla de reportes
   };
+  const handlePerfil = () => {
+    router.push('perfil')
+  };
 
   return (
     <View style={styles.container}>
@@ -96,6 +99,12 @@ export default function Home () {
         <TouchableOpacity style={styles.button} onPress={handleDepositar}>
           <Icon name="rocket" size={40} color="#900" />
           <Text style={styles.buttonText}>Depositar</Text>
+        </TouchableOpacity>
+
+        {/* Prueba de perfil */}
+        <TouchableOpacity style={styles.button} onPress={handlePerfil}>
+          <Icon name="rocket" size={40} color="#900" />
+          <Text style={styles.buttonText}>Perfil</Text>
         </TouchableOpacity>
       </View>
 
