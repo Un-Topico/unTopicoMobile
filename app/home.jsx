@@ -2,7 +2,6 @@ import { router } from 'expo-router';
 import React, { useContext } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ImageBackground, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-
 // Obtiene las dimensiones de la pantalla
 const { width } = Dimensions.get('window');
 
