@@ -2,15 +2,19 @@ import { router } from 'expo-router';
 import React, { useContext } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ImageBackground, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { auth } from './utils/firebaseConfig';
+import { signOut } from 'firebase/auth';
 // Obtiene las dimensiones de la pantalla
 const { width } = Dimensions.get('window');
 
 export default function Home () {
-
   const appName = "Untopico";
   const logoSource = require('../assets/images/logo.png');
- const logout=()=>{
+// Funcion para cerrar sesion
 
+ const logout=async()=>{
+  await signOut(auth)
+  router.replace('/login')
  }
   // TARJETA  
   const cardData = {

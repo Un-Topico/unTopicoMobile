@@ -20,7 +20,7 @@ export default function logIn  ({
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        router.push('./home'); // Navega a la pantalla de inicio
+        router.push('home'); // Navega a la pantalla de inicio
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -30,7 +30,7 @@ export default function logIn  ({
   };
 
   const handleLink = () => {
-    router.push('/SignUp_LogIn/signUp'); // Navega a la pantalla de registro
+    router.push('register'); // Navega a la pantalla de registro
   };
 
   return (

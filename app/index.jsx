@@ -2,7 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, Image } from 'react-native';
 import {  useRouter } from 'expo-router';
 
-export default function Screen0 (){
+export default function Inicio (){
   const router = useRouter();
 
   function handleSignUp() {
