@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { onAuthStateChanged, getAuth, User } from 'firebase/auth';
 import { useRouter } from 'expo-router';
-
 export default function Layout() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);

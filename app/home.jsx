@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
-import React, { useContext } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ImageBackground, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { auth } from './utils/firebaseConfig';
 import { signOut } from 'firebase/auth';
+import TabLayout from './components/tabLayout';
 // Obtiene las dimensiones de la pantalla
 const { width } = Dimensions.get('window');
 
@@ -102,6 +103,8 @@ export default function Home () {
       <TouchableOpacity style={styles.logoutButton} onPress={logout}>
         <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
       </TouchableOpacity>
+      <TabLayout/>
+
     </View>
   );
 };
