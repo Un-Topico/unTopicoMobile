@@ -22,7 +22,7 @@ export default function Layout() {
     if (!loading) {
       // Navegación controlada después de que el estado del usuario haya sido cargado
       if (user) {
-        router.replace('/home');
+        router.replace('/profile');
       } 
     }
   }, [user, loading, router]);

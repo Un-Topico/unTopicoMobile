@@ -1,5 +1,5 @@
 import {Text} from 'react-native'
-export default function TransactionSection() {
+export const TransactionSection=()=> {
     return(
         <> <Text>TransactionSection</Text></>
     )

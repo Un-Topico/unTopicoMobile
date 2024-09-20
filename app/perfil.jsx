@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { getAuth } from 'firebase/auth';
-export default function Profile () {
+export default function Perfil () {
   // Devolvemos el usuario autenticado
   const auth = getAuth();
   const user = auth.currentUser;

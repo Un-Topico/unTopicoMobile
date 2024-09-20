@@ -1,5 +1,5 @@
 import {Text} from 'react-native'
-export default function UserCards() {
+export const  UserCards=()=> {
     return(
         <> <Text>UserCards</Text></>
     )

@@ -1,5 +1,5 @@
 import {Text} from 'react-native'
-export default function RealTimeChat() {
+export const  RealTimeChat=()=> {
     return(
         <> <Text>RealTimeChat</Text></>
     )
