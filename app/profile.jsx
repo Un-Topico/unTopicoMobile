@@ -123,12 +123,13 @@ export  default function Profile () {
           onCardDelete={handleCardDelete}
         />
       )}
-      {/* <UserCards onSelectCard={handleCardSelection} />
-      <TransactionSection
+
+      <UserCards onSelectCard={handleCardSelection} />
+      {/* <TransactionSection
         selectedCard={selectedCard}
         updateCardBalance={updateCardBalance}
-      />
-      <RealTimeChat userRole={userRole} />
+      /> */}
+      {/* <RealTimeChat userRole={userRole} />
       {userRole === "admin" && (
         <Button title="Panel de Administración" onPress={() => router.push("/admin/users")} />
       )} */}
