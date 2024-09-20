@@ -24,7 +24,7 @@ export default function Register ({
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       Alert.alert("Registro exitoso", "Usuario registrado correctamente");
-      router.push('home'); // Navega a la pantalla de inicio
+      router.push('accountSetup'); // Navega a la pantalla de inicio
     } catch (error) {
       Alert.alert("Error en el registro", error.message);
     }
