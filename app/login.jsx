@@ -20,7 +20,7 @@ export default function logIn  ({
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        router.push('home'); // Navega a la pantalla de inicio
+        router.push('profile'); // Navega a la pantalla de inicio
       })
       .catch((error) => {
         const errorCode = error.code;

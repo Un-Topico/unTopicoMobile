@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, ActivityIndicator, StyleSheet } from "react-native";
+import { View, Text, Button, ActivityIndicator, StyleSheet, ScrollView } from "react-native";
 import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, signOut } from "firebase/auth"; // Importa signOut
 import { useRouter } from "expo-router";
 import { app } from "./utils/firebaseConfig";
-import {UserProfile  } from "./components/userProfile";
+import { UserProfile } from "./components/userProfile";
 import { AccountInfo } from "./components/accountInfo";
 import { TransactionSection } from "./components/transactionSection";
-import { RealTimeChat } from "./components/realTimeChat";
-import {UserCards} from "./components/userCards";
+import { UserCards } from "./components/userCards";
 
-export  default function Profile () {
+export default function Profile() {
   const auth = getAuth(app);
   const { currentUser } = auth;
   const router = useRouter();
@@ -19,7 +18,7 @@ export  default function Profile () {
   const [accountData, setAccountData] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [selectedCard, setSelectedCard] = useState(null);
-  const [totalBalance, setTotalBalance] = useState(0); // Nuevo estado para el balance total
+  const [totalBalance, setTotalBalance] = useState(0);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -29,7 +28,6 @@ export  default function Profile () {
       }
 
       const db = getFirestore(app);
-
       // Fetch user role
       const rolesCollection = collection(db, "roles");
       const roleQuery = query(rolesCollection, where("email", "==", currentUser.email));
@@ -61,7 +59,7 @@ export  default function Profile () {
           total += doc.data().balance; // Sumamos el balance de cada tarjeta
         });
 
-        setTotalBalance(total); // Establecemos el balance total
+        setTotalBalance(total);
 
         if (selectedCard) {
           const transactionsRef = collection(db, "transactions");
@@ -81,20 +79,20 @@ export  default function Profile () {
   }, [currentUser, selectedCard]);
 
   const handleCardSelection = (card) => setSelectedCard(card);
-  const handleImageUpdate = (newImageUrl) =>
-    setAccountData((prevData) => ({ ...prevData, profileImage: newImageUrl }));
-  const updateCardBalance = (newBalance) =>
-    setSelectedCard((prevCard) => ({ ...prevCard, balance: newBalance }));
+  const handleImageUpdate = (newImageUrl) => setAccountData((prevData) => ({ ...prevData, profileImage: newImageUrl }));
+  const updateCardBalance = (newBalance) => setSelectedCard((prevCard) => ({ ...prevCard, balance: newBalance }));
+  const handleCardDelete = () => setSelectedCard(null);
+  const handleNameUpdate = (newName) => setAccountData((prevData) => ({ ...prevData, name: newName }));
+  const handlePhoneUpdate = (newPhone) => setAccountData((prevData) => ({ ...prevData, phoneNumber: newPhone }));
 
-  const handleCardDelete = () => {
-    setSelectedCard(null); // Deselecciona la tarjeta después de eliminarla
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push("/login");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
   };
-
-  const handleNameUpdate = (newName) =>
-    setAccountData((prevData) => ({ ...prevData, name: newName }));
-
-  const handlePhoneUpdate = (newPhone) =>
-    setAccountData((prevData) => ({ ...prevData, phoneNumber: newPhone }));
 
   if (loading) {
     return (
@@ -106,7 +104,7 @@ export  default function Profile () {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <UserProfile
         accountData={accountData}
         currentUser={currentUser}
@@ -119,27 +117,28 @@ export  default function Profile () {
           accountData={accountData}
           selectedCard={selectedCard}
           transactions={transactions}
-          totalBalance={totalBalance} // Pasamos el balance total al componente AccountInfo
+          totalBalance={totalBalance}
           onCardDelete={handleCardDelete}
         />
       )}
-
       <UserCards onSelectCard={handleCardSelection} />
-      {/* <TransactionSection
+      <TransactionSection
         selectedCard={selectedCard}
         updateCardBalance={updateCardBalance}
-      /> */}
+      />
+      <Button title="Cerrar sesión" onPress={handleLogout} />
       {/* <RealTimeChat userRole={userRole} />
       {userRole === "admin" && (
         <Button title="Panel de Administración" onPress={() => router.push("/admin/users")} />
       )} */}
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     padding: 20,
+    flexGrow: 1,
   },
   centered: {
     flex: 1,
