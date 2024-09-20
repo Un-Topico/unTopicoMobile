@@ -79,7 +79,7 @@ export default function AccountSetup() {
 
       await setDoc(accountDocRef, accountData);
 
-      router.push("/home"); // Navegar a la página de inicio
+      router.push("/profile"); // Navegar a la página de inicio
     } catch (error) {
       console.error("Error al crear la cuenta:", error);
     }

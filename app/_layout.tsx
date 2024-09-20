@@ -43,7 +43,8 @@ export default function Layout() {
       <Stack.Screen name="retirar" options={{ headerShown: false }} />
       <Stack.Screen name="transferir" options={{ headerShown: false }} />
       <Stack.Screen name="reportes" options={{ headerShown: false }} />
-      
+
+      <Stack.Screen name="profile" options={{ headerShown: false }} />
     </Stack>
   );
 }
