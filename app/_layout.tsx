@@ -10,7 +10,7 @@ export default function Layout() {
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log('Estado del usuario:', user);
+      // console.log('Estado del usuario:', user);
       setUser(user);
       setLoading(false);
     });

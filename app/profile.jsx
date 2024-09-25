@@ -1,6 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, ActivityIndicator, StyleSheet, ScrollView } from "react-native";
-import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
+import {
+  View,
+  Text,
+  Button,
+  ActivityIndicator,
+  StyleSheet,
+  ScrollView,
+  Alert,
+} from "react-native";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { getAuth, signOut } from "firebase/auth"; // Importa signOut
 import { useRouter } from "expo-router";
 import { app } from "./utils/firebaseConfig";
@@ -19,6 +33,7 @@ export default function Profile() {
   const [transactions, setTransactions] = useState([]);
   const [selectedCard, setSelectedCard] = useState(null);
   const [totalBalance, setTotalBalance] = useState(0);
+  const [statusUser, setStatusUser] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -30,7 +45,10 @@ export default function Profile() {
       const db = getFirestore(app);
       // Fetch user role
       const rolesCollection = collection(db, "roles");
-      const roleQuery = query(rolesCollection, where("email", "==", currentUser.email));
+      const roleQuery = query(
+        rolesCollection,
+        where("email", "==", currentUser.email)
+      );
       const rolesSnapshot = await getDocs(roleQuery);
 
       if (!rolesSnapshot.empty) {
@@ -40,36 +58,57 @@ export default function Profile() {
 
       // Fetch account data
       const accountsCollection = collection(db, "accounts");
-      const accountQuery = query(accountsCollection, where("ownerId", "==", currentUser.uid));
+      const accountQuery = query(
+        accountsCollection,
+        where("ownerId", "==", currentUser.uid)
+      );
       const accountSnapshot = await getDocs(accountQuery);
-
-      if (accountSnapshot.empty) {
-        router.push("/crear-cuenta");
+      console.log(accountSnapshot)
+      if (accountSnapshot.empty || accountSnapshot== null) {
+        router.push("accountSetup");
       } else {
-        const accountInfo = accountSnapshot.docs[0].data();
-        setAccountData(accountInfo);
+        const accountInfo = await accountSnapshot.docs[0].data();
+        // console.log(accountInfo)
+        if (accountInfo) {
+          setAccountData(accountInfo);
 
-        // Fetch para calcular el total del balance de todas las tarjetas
-        const cardsCollection = collection(db, "cards");
-        const cardsQuery = query(cardsCollection, where("ownerId", "==", currentUser.uid));
-        const cardsSnapshot = await getDocs(cardsQuery);
 
-        let total = 0;
-        cardsSnapshot.forEach((doc) => {
-          total += doc.data().balance; // Sumamos el balance de cada tarjeta
-        });
+          // Fetch para calcular el total del balance de todas las tarjetas
+          const cardsCollection = collection(db, "cards");
+          const cardsQuery = query(
+            cardsCollection,
+            where("ownerId", "==", currentUser.uid)
+          );
+          const cardsSnapshot = await getDocs(cardsQuery);
 
-        setTotalBalance(total);
+          let total = 0;
+          cardsSnapshot.forEach((doc) => {
+            total += doc.data().balance; // Sumamos el balance de cada tarjeta
+          });
 
-        if (selectedCard) {
-          const transactionsRef = collection(db, "transactions");
-          const transactionsQuery = query(transactionsRef, where("card_id", "==", `${selectedCard.cardId}`));
-          const transactionsSnapshot = await getDocs(transactionsQuery);
+          setTotalBalance(total);
+          setStatusUser(true)
 
-          const transactionsData = transactionsSnapshot.docs.map((doc) => doc.data());
-          transactionsData.sort((a, b) => b.transaction_date.toDate() - a.transaction_date.toDate());
-          setTransactions(transactionsData);
+          if (selectedCard) {
+            const transactionsRef = collection(db, "transactions");
+            const transactionsQuery = query(
+              transactionsRef,
+              where("card_id", "==", `${selectedCard.cardId}`)
+            );
+            const transactionsSnapshot = await getDocs(transactionsQuery);
+
+            const transactionsData = transactionsSnapshot.docs.map((doc) =>
+              doc.data()
+            );
+            transactionsData.sort(
+              (a, b) =>
+                b.transaction_date.toDate() - a.transaction_date.toDate()
+            );
+            setTransactions(transactionsData);
+          }
+
         }
+
       }
 
       setLoading(false);
@@ -79,11 +118,15 @@ export default function Profile() {
   }, [currentUser, selectedCard]);
 
   const handleCardSelection = (card) => setSelectedCard(card);
-  const handleImageUpdate = (newImageUrl) => setAccountData((prevData) => ({ ...prevData, profileImage: newImageUrl }));
-  const updateCardBalance = (newBalance) => setSelectedCard((prevCard) => ({ ...prevCard, balance: newBalance }));
+  const handleImageUpdate = (newImageUrl) =>
+    setAccountData((prevData) => ({ ...prevData, profileImage: newImageUrl }));
+  const updateCardBalance = (newBalance) =>
+    setSelectedCard((prevCard) => ({ ...prevCard, balance: newBalance }));
   const handleCardDelete = () => setSelectedCard(null);
-  const handleNameUpdate = (newName) => setAccountData((prevData) => ({ ...prevData, name: newName }));
-  const handlePhoneUpdate = (newPhone) => setAccountData((prevData) => ({ ...prevData, phoneNumber: newPhone }));
+  const handleNameUpdate = (newName) =>
+    setAccountData((prevData) => ({ ...prevData, name: newName }));
+  const handlePhoneUpdate = (newPhone) =>
+    setAccountData((prevData) => ({ ...prevData, phoneNumber: newPhone }));
 
   const handleLogout = async () => {
     try {
@@ -105,35 +148,42 @@ export default function Profile() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <UserProfile
-        accountData={accountData}
-        currentUser={currentUser}
-        onImageUpdate={handleImageUpdate}
-        onNameUpdate={handleNameUpdate}
-        onPhoneUpdate={handlePhoneUpdate}
-      />
-      {accountData && (
-        <AccountInfo
-          accountData={accountData}
-          selectedCard={selectedCard}
-          transactions={transactions}
-          totalBalance={totalBalance}
-          onCardDelete={handleCardDelete}
-        />
-      )}
-      <UserCards onSelectCard={handleCardSelection} />
-      <TransactionSection
-        selectedCard={selectedCard}
-        updateCardBalance={updateCardBalance}
-      />
+      {statusUser ? (
+        <View>
+          <UserProfile
+            accountData={accountData}
+            currentUser={currentUser}
+            onImageUpdate={handleImageUpdate}
+            onNameUpdate={handleNameUpdate}
+            onPhoneUpdate={handlePhoneUpdate}
+          />
+          {accountData && (
+            <AccountInfo
+              accountData={accountData}
+              selectedCard={selectedCard}
+              transactions={transactions}
+              totalBalance={totalBalance}
+              onCardDelete={handleCardDelete}
+            />
+          )}
+          <UserCards onSelectCard={handleCardSelection} />
+          <TransactionSection
+            selectedCard={selectedCard}
+            updateCardBalance={updateCardBalance}
+          />
       <Button title="Cerrar sesión" onPress={handleLogout} />
+
+        </View>
+      ) : (
+        <></>
+      )}
       {/* <RealTimeChat userRole={userRole} />
       {userRole === "admin" && (
         <Button title="Panel de Administración" onPress={() => router.push("/admin/users")} />
       )} */}
     </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
