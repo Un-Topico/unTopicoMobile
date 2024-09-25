@@ -11,6 +11,8 @@ export default function logIn  ({
   title2 = "Iniciar Sesión",
   question1 = "Aún no tienes cuenta?",
   answer1 = "Crea tu cuenta",
+  googlesource = require('../assets/images/Google.png'), // Imagen de Google
+  forgotText = "¿Olvidaste tu contraseña?",
 }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,7 +25,6 @@ export default function logIn  ({
         router.push('profile'); // Navega a la pantalla de inicio
       })
       .catch((error) => {
-        const errorCode = error.code;
         const errorMessage = error.message;
         Alert.alert('Error', errorMessage); // Muestra un mensaje de error
       });
@@ -31,6 +32,10 @@ export default function logIn  ({
 
   const handleLink = () => {
     router.push('register'); // Navega a la pantalla de registro
+  };
+
+  const handleForgotLink = () => {
+    router.push('/SignUp_LogIn/forgotPassword'); // Navega a la pantalla de "Olvidaste tu contraseña"
   };
 
   return (
@@ -66,11 +71,13 @@ export default function logIn  ({
               onChangeText={(text) => setPassword(text)}
               value={password}
             />
+
             <View style={styles.ViewForgotPassword}>
-              <Text style={styles.forgotPasswordText}>
-                Forgot password?
+              <Text style={styles.forgotPasswordText} onPress={handleForgotLink}>
+                {forgotText}
               </Text>
             </View>
+
             <View style={styles.ViewButton}>
               <TouchableOpacity style={styles.button} onPress={handleLogIn}>
                 <Text style={styles.buttonText}>Iniciar Sesión</Text>
@@ -86,13 +93,25 @@ export default function logIn  ({
               </Text>
             </View>
 
+            {/* Divisor y botón de Google */}
+            <View style={styles.dividerContainer}>
+              <View style={styles.line} />
+              <Text style={styles.orText}>o</Text>
+              <View style={styles.line} />
+            </View>
+
+            <View style={styles.ViewButton}>
+              <TouchableOpacity style={styles.button_Google}>
+                <Image style={styles.Google_img} source={googlesource} />
+                <Text style={styles.buttonText_Google}>Continuar con Google</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -182,5 +201,41 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  // Estilos adicionales desde loginAntiguo
+  dividerContainer: {
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginVertical: 20,
+  },
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#ccc',
+  },
+  orText: {
+    marginHorizontal: 10,
+    fontSize: 14,
+    color: '#999',
+  },
+  button_Google: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+    width: '100%',
+    height: 60,
+    backgroundColor: '#EFEFEF',
+    borderRadius: 5,
+  },
+  Google_img: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
+  },
+  buttonText_Google: {
+    textAlign: 'center',
+    color: '#000',
+    fontSize: 16,
   },
 });
