@@ -53,7 +53,7 @@ export default function logIn  ({
               style={styles.TextInput}
               placeholder="Email"
               placeholderTextColor='#707070'
-              maxLength={24}
+              maxLength={50}
               onChangeText={(text) => setEmail(text)}
               value={email}
             />

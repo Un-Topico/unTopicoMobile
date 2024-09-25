@@ -57,6 +57,15 @@ export const CreditCardForm = ({ onCardSaved }) => {
     detectCardType(formattedNumber.replace(/\s/g, ""));
   };
 
+  const formatExpiryDate = (text) => {
+    const formattedDate = text
+      .replace(/\D/g, "") // Remover caracteres no numéricos
+      .replace(/(\d{2})(\d{1,2})/, "$1/$2") // Insertar diagonal después de los primeros 2 dígitos
+      .slice(0, 5); // Limitar el largo máximo a 5 caracteres (MM/AA)
+      
+    setExpiryDate(formattedDate);
+  };
+
   const handleSubmit = async () => {
     setError(null);
     const user = auth.currentUser;
@@ -130,7 +139,7 @@ export const CreditCardForm = ({ onCardSaved }) => {
         placeholder="Fecha de Expiración (MM/AA)"
         maxLength={5}
         value={expiryDate}
-        onChangeText={setExpiryDate}
+        onChangeText={formatExpiryDate}
         keyboardType="numeric"
         editable={!isCardSaved}
       />
@@ -154,4 +163,4 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 20 },
   input: { borderWidth: 1, borderColor: "#ccc", padding: 10, marginBottom: 20 },
   success: { color: "green", marginTop: 20 },
-});
+}); 
