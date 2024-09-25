@@ -4,15 +4,15 @@ import {  useRouter } from 'expo-router';
 import { createUserWithEmailAndPassword } from 'firebase/auth'; // Importa la función para registrar usuarios
 import { auth } from './utils/firebaseConfig'; // Importa la configuración de Firebase
 
-export default function Register ({ 
-  appName= "Untopico", 
+export default function Register({ 
+  appName = "Untopico", 
   logoSource = require('../assets/images/logo.png'), 
-  backgroundSource = require('../assets/images/backgroundImage.jpg'),
+  backgroundSource = require('../assets/images/backgroundImage.jpg'), 
+  googlesource = require('../assets/images/Google.png'),
 
-  title2 = "Crea tu cuenta",
-  question1 = "Ya tienes cuenta",
-  answer1 = "Iniciar Sesión",
-
+  title2 = "Crea tu cuenta", 
+  question1 = "Ya tienes cuenta", 
+  answer1 = "Iniciar Sesión" 
 }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,7 +24,7 @@ export default function Register ({
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       Alert.alert("Registro exitoso", "Usuario registrado correctamente");
-      router.push('accountSetup'); // Navega a la pantalla de inicio
+      router.push('accountSetup'); // Navega a la pantalla de configuración de cuenta
     } catch (error) {
       Alert.alert("Error en el registro", error.message);
     }
@@ -67,11 +67,13 @@ export default function Register ({
               onChangeText={(text) => setPassword(text)}
               value={password}
             />
+
             <View style={styles.ViewForgotPassword}>
               <Text style={styles.forgotPasswordText}>
                 Forgot password?
               </Text>
             </View>
+
             <View style={styles.ViewButton}>
               <TouchableOpacity style={styles.button} onPress={handleSignUp}>
                 <Text style={styles.buttonText}>Crear</Text>
@@ -87,6 +89,19 @@ export default function Register ({
               </Text>
             </View>
 
+            <View style={styles.dividerContainer}>
+              <View style={styles.line} />
+              <Text style={styles.orText}>o</Text>
+              <View style={styles.line} />
+            </View>
+
+            <View style={styles.ViewButton}>
+              <TouchableOpacity style={styles.button_Google}>
+                <Image style={styles.Google_img} source={googlesource} />
+                <Text style={styles.buttonText_Google}>Continuar con Google</Text>
+              </TouchableOpacity>
+            </View>
+
           </View>
         </View>
       </ScrollView>
@@ -99,7 +114,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    position: 'relative'
+    position: 'relative',
   },
   text1: {
     fontSize: 16,
@@ -142,6 +157,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     fontSize: 16,
   },
+  ViewForgotPassword: {
+    alignItems: 'center',
+  },
+  forgotPasswordText: {
+    fontSize: 16,
+    textDecorationLine: 'underline',
+  },
   button: {
     backgroundColor: '#4FD290',
     padding: 10,
@@ -158,10 +180,39 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
   },
-  ViewForgotPassword: {
-    alignItems: 'center',
+  dividerContainer: {
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginVertical: 20,
   },
-  forgotPasswordText: {
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#ccc',
+  },
+  orText: {
+    marginHorizontal: 10,
+    fontSize: 14,
+    color: '#999',
+  },
+  button_Google: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+    width: '100%',
+    height: 60,
+    backgroundColor: '#EFEFEF',
+    borderRadius: 5,
+  },
+  Google_img: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
+  },
+  buttonText_Google: {
+    textAlign: 'center',
+    color: '#000',
     fontSize: 16,
     textDecorationLine: 'underline',
   },
@@ -171,7 +222,7 @@ const styles = StyleSheet.create({
   },
   ViewButton: {
     alignItems: 'center',
-    width: '100%'
+    width: '100%',
   },
   BackImage: {
     position: 'absolute',
@@ -184,4 +235,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 });
+
+
 
