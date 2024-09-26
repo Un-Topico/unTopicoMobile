@@ -19,6 +19,7 @@ export const CreditCardForm = ({ onCardSaved }) => {
   useEffect(() => {
     const user = auth.currentUser;
     if (!user) {
+      Alert.alert("Usuario no autenticado", "Por favor inicia sesión para guardar una tarjeta.")
       // Manejar estado no autenticado
     }
   }, [auth.currentUser]);
@@ -66,11 +67,42 @@ export const CreditCardForm = ({ onCardSaved }) => {
     setExpiryDate(formattedDate);
   };
 
+  const isValidarCardNumber = (number) => {
+    const cleanedNumber = number.replace(/\s/g, "");
+    const lengthValid = cleanedNumber.length >= 13 && cleanedNumber.length <= 19;
+
+    const luhnCheck = (num) => {
+      let sum = 0;
+      let shouldDouble = false;
+
+      for (let i = num.length - 1; i >= 0; i--) {
+        let digit = parseInt(num[i]);
+
+        if (shouldDouble) {
+          digit *=2;
+          if (digit > 9) digit -= 9;
+        }
+
+        sum += digit;
+        shouldDouble = !shouldDouble;
+      }
+
+      return sum % 10 === 0;
+    };
+
+    return lengthValid && luhnCheck(cleanedNumber);
+  };
+
   const handleSubmit = async () => {
     setError(null);
     const user = auth.currentUser;
     if (!user) {
       console.error("No hay usuario autenticado.");
+      return;
+    }
+
+    if (!isValidarCardNumber(cardNumber)){
+      Alert.alert("Error", "Número de tarjeta no válido. Por favor, revise el número ingresado");
       return;
     }
 
