@@ -77,14 +77,30 @@ export default function TabLayout() {
           options={{
             href: null,
             headerShown: false,
-          }} 
+          }}
         />
         <Tabs.Screen
           name="changeNIP"
           options={{
             href: null,
             headerShown: false,
-          }} 
+          }}
+        />
+
+        <Tabs.Screen
+          name="FAQ"
+          options={{
+            href: null,
+            headerShown: false,
+          }}
+        />
+
+        <Tabs.Screen
+          name="chat"
+          options={{
+            href: null,
+            headerShown: false,
+          }}
         />
 
       </Tabs>

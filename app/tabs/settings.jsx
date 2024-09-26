@@ -45,12 +45,12 @@ const settings = () => {
     Preguntas_Frecuentes: {
       displayName: 'Preguntas Frecuentes',
       iconName: 'question-circle-o',
-      onPress: () => Alert.alert('Mostrando Preguntas Frecuentes'),
+      onPress: () => router.push('./FAQ'),
     },
     Chat_Soporte: {
       displayName: 'Chat con Soporte',
       iconName: 'commenting-o',
-      onPress: () => Alert.alert('Iniciando chat con soporte'),
+      onPress: () => router.push('./chat'),
     },
   };
 
