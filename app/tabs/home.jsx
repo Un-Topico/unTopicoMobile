@@ -17,11 +17,13 @@ const index = () => {
 
   
   function handleDepositar() {
-    //router.push('/Index/Depositar'); 
+    router.push('./deposit'); 
   }
   function handleTransferir() {
+    router.push('./transfer');
   }
   function handleRetirar() {
+    router.push('./withdraw'); 
   }
   function handleReportes() {
     router.push('./reportes');

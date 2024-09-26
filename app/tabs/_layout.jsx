@@ -66,6 +66,27 @@ export default function TabLayout() {
         />
         */}
         <Tabs.Screen
+          name="deposit"
+          options={{
+            href: null,
+            headerShown: false,
+          }}
+        />
+        <Tabs.Screen
+          name="transfer"
+          options={{
+            href: null,
+            headerShown: false,
+          }}
+        />
+        <Tabs.Screen
+          name="withdraw"
+          options={{
+            href: null,
+            headerShown: false,
+          }}
+        />
+        <Tabs.Screen
           name="reportes"
           options={{
             href: null,
