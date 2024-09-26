@@ -67,7 +67,17 @@ export default function TabLayout() {
         */}
         <Tabs.Screen
           name="reportes"
-          options={{ href: null }} // Oculta la pestaña de "Reportes"
+          options={{
+            href: null,
+            headerShown: false,
+          }} // Oculta la pestaña de "Reportes"
+        />
+        <Tabs.Screen
+          name="personal_Info"
+          options={{
+            href: null,
+            headerShown: false,
+          }} // Oculta la pestaña de "Reportes"
         />
 
       </Tabs>

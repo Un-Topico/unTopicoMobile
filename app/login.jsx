@@ -22,7 +22,7 @@ export default function logIn  ({
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        router.push('profile'); // Navega a la pantalla de inicio
+        router.push('tabs/profile'); // Navega a la pantalla de inicio
       })
       .catch((error) => {
         const errorMessage = error.message;
@@ -35,7 +35,7 @@ export default function logIn  ({
   };
 
   const handleForgotLink = () => {
-    router.push('/SignUp_LogIn/forgotPassword'); // Navega a la pantalla de "Olvidaste tu contraseña"
+    //router.push('/SignUp_LogIn/forgotPassword');
   };
 
   return (
