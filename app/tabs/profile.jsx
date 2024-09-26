@@ -17,11 +17,11 @@ import {
 } from "firebase/firestore";
 import { getAuth, signOut } from "firebase/auth"; // Importa signOut
 import { useRouter } from "expo-router";
-import { app } from "./utils/firebaseConfig";
-import { UserProfile } from "./components/userProfile";
-import { AccountInfo } from "./components/accountInfo";
-import { TransactionSection } from "./components/transactionSection";
-import { UserCards } from "./components/userCards";
+import { app } from "../utils/firebaseConfig";
+import { UserProfile } from "../components/userProfile";
+import { AccountInfo } from "../components/accountInfo";
+import { TransactionSection } from "../components/transactionSection";
+import { UserCards } from "../components/userCards";
 
 export default function Profile() {
   const auth = getAuth(app);
