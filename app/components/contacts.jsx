@@ -5,7 +5,7 @@ import { TextInput } from "react-native";
 import { Picker } from '@react-native-picker/picker'; // Importar Picker
 import { ActivityIndicator } from "react-native-paper";
 
-const Contacts = ({ currentUser, onContactSelect, setError, setSuccess }) => {
+const Contacts = ({ currentUser, onContactSelect}) => {
   const [contacts, setContacts] = useState([]);
   const [showAddContact, setShowAddContact] = useState(false);
   const [newContactEmail, setNewContactEmail] = useState("");
@@ -13,6 +13,25 @@ const Contacts = ({ currentUser, onContactSelect, setError, setSuccess }) => {
   const [selectedContact, setSelectedContact] = useState(""); 
   const [loading, setLoading] = useState(false);
   const [showContacts, setShowContacts] = useState(false);
+  const [error, setErrorMessage] = useState("");
+  const [success, setSuccessMessage] = useState("");
+
+  useEffect(() => {
+    let timer;
+    if (error || success) {
+      timer = setTimeout(() => {
+        setErrorMessage("");
+        setSuccessMessage("");
+      }, 3000);
+    }
+  
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [error, success]);
+  
 
   const db = getFirestore();
 
@@ -31,44 +50,51 @@ const Contacts = ({ currentUser, onContactSelect, setError, setSuccess }) => {
         });
         setContacts(contactsData);
       } catch (error) {
-        setError("Error al obtener los contactos.");
+        setErrorMessage("Error al obtener los contactos.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchContacts();
-  }, [db, currentUser.uid, setError]);
+  }, [db, currentUser.uid, setErrorMessage]);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  const handleAddContact = async () => {
+  const normalizeAlias = (alias) => {
+    return alias.replace(/\s+/g, "");
+  };
 
-    if (!newContactEmail.trim() || !newContactAlias.trim()) {
-      setError("El correo y el alias del contacto no pueden estar vacíos o completados por espacios.");
+  const handleAddContact = async () => {
+    const normalizedEmail = newContactEmail.trim();
+    const normalizedAlias = normalizeAlias(newContactAlias);
+
+
+    if (!normalizedEmail || !normalizedAlias) {
+      setErrorMessage("El correo y el alias del contacto no pueden estar vacíos o completados por espacios.");
       return;
     }
   
-    if (!validateEmail(newContactEmail)) {
-      setError("El formato del correo no es válido.");
+    if (!validateEmail(normalizedEmail)) {
+      setErrorMessage("El formato del correo no es válido.");
       return;
     }
-  
+    setLoading(true);
     try {
       // Verificar si ya existe un contacto con el mismo correo
       const emailQuery = query(
         collection(db, "contacts"),
         where("ownerId", "==", currentUser.uid),
-        where("email", "==", newContactEmail)
+        where("email", "==", normalizedEmail)
       );
   
       const emailSnapshot = await getDocs(emailQuery);
   
       if (!emailSnapshot.empty) {
-        setError("Ya existe un contacto con ese correo.");
+        setErrorMessage("Ya existe un contacto con ese correo.");
         return;
       }
   
@@ -76,40 +102,45 @@ const Contacts = ({ currentUser, onContactSelect, setError, setSuccess }) => {
       const aliasQuery = query(
         collection(db, "contacts"),
         where("ownerId", "==", currentUser.uid),
-        where("alias", "==", newContactAlias)
+        where("alias", "==", normalizedAlias)
       );
   
       const aliasSnapshot = await getDocs(aliasQuery);
   
       if (!aliasSnapshot.empty) {
-        setError("Ya existe un contacto con ese alias.");
+        setErrorMessage("Ya existe un contacto con ese alias.");
         return;
       }
   
       // Si pasa las verificaciones, agregar el nuevo contacto      
       const docRef = await addDoc(collection(db, "contacts"), {
         ownerId: currentUser.uid,
-        email: newContactEmail,
-        alias: newContactAlias,
+        email: normalizedEmail,
+        alias: normalizedAlias,
       });
 
       setContacts([...contacts, { id: docRef.id, email: newContactEmail, alias: newContactAlias }]);
       setNewContactEmail("");
       setNewContactAlias("");
       setShowAddContact(false);
-      setSuccess("Contacto añadido con éxito.");
+      setSuccessMessage("Contacto añadido con éxito.");
     } catch (error) {
-      setError(`Error al añadir el contacto: ${error.message}`);
+      setErrorMessage(`Error al añadir el contacto: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
   };
   
   const handleDeleteContact = async (contactId) => {
+    setLoading(true);
     try {
       await deleteDoc(doc(db, "contacts", contactId));
       setContacts(contacts.filter(contact => contact.id !== contactId));
-      setSuccess("Contacto eliminado con éxito");
+      setSuccessMessage("Contacto eliminado con éxito");
     } catch (error) {
-      setError(`Error al eliminar el contacto: ${error.message}`);
+      setErrorMessage(`Error al eliminar el contacto: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -134,6 +165,11 @@ const Contacts = ({ currentUser, onContactSelect, setError, setSuccess }) => {
 
   return (
     <View>
+
+      {/* Mensajes de éxito y error */}
+      {error && <Text style={{ color: "red" }}>{error}</Text>}
+      {success && <Text style={{ color: "green" }}>{success}</Text>}
+
       <Button
         title={showAddContact ? "Ocultar Formulario" : "Añadir Contacto"}
         onPress={() => setShowAddContact(!showAddContact)}
