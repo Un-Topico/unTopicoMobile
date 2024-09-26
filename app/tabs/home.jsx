@@ -13,7 +13,6 @@ const index = () => {
   const logoSource = require('../../assets/images/logo.png');
 
   // Navegación entre ventanas
-
   const router = useRouter();
 
   
@@ -25,6 +24,7 @@ const index = () => {
   function handleRetirar() {
   }
   function handleReportes() {
+    router.push('./reportes');
   }
   
   return (

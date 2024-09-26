@@ -40,14 +40,36 @@ export default function TabLayout() {
           }}
         />
 
-        
+        <Tabs.Screen
+          name="cards"
+          options={{
+            title: 'Mis Tarjetas',
+            tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="credit-card" color={color} />,
+            headerShown: false,
+          }}
+        />
+
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: 'Settings',
+            tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="cog" color={color} />,
+            headerShown: false,
+          }}
+        />
+
+
         {/* OCULTAR PESTAÑAS (options...) 
         <Tabs.Screen
           name="Retirar"
           options={{ href: null }} // Oculta la pestaña de "Retirar"
         />
         */}
-        
+        <Tabs.Screen
+          name="reportes"
+          options={{ href: null }} // Oculta la pestaña de "Reportes"
+        />
+
       </Tabs>
     </GestureHandlerRootView>
   );
