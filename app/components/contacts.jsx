@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Button } from "react-native";
-import { getFirestore, collection, query, where, getDocs, addDoc } from "firebase/firestore";
+import { View, Text, Button, Alert} from "react-native";
+import { getFirestore, collection, query, where, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
 import { TextInput } from "react-native";
 import { Picker } from '@react-native-picker/picker'; // Importar Picker
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import { ActivityIndicator } from "react-native-paper";
 
 const Contacts = ({ currentUser, onContactSelect, setError, setSuccess }) => {
@@ -11,8 +10,9 @@ const Contacts = ({ currentUser, onContactSelect, setError, setSuccess }) => {
   const [showAddContact, setShowAddContact] = useState(false);
   const [newContactEmail, setNewContactEmail] = useState("");
   const [newContactAlias, setNewContactAlias] = useState("");
-  const [selectedContact, setSelectedContact] = useState(""); // Para almacenar el contacto seleccionado
+  const [selectedContact, setSelectedContact] = useState(""); 
   const [loading, setLoading] = useState(false);
+  const [showContacts, setShowContacts] = useState(false);
 
   const db = getFirestore();
 
@@ -46,8 +46,9 @@ const Contacts = ({ currentUser, onContactSelect, setError, setSuccess }) => {
   };
 
   const handleAddContact = async () => {
-    if (!newContactEmail || !newContactAlias) {
-      setError("El correo y el alias del contacto no pueden estar vacíos.");
+
+    if (!newContactEmail.trim() || !newContactAlias.trim()) {
+      setError("El correo y el alias del contacto no pueden estar vacíos o completados por espacios.");
       return;
     }
   
@@ -65,8 +66,9 @@ const Contacts = ({ currentUser, onContactSelect, setError, setSuccess }) => {
       );
   
       const emailSnapshot = await getDocs(emailQuery);
+  
       if (!emailSnapshot.empty) {
-        setError("Este contacto ya existe con ese correo.");
+        setError("Ya existe un contacto con ese correo.");
         return;
       }
   
@@ -78,26 +80,56 @@ const Contacts = ({ currentUser, onContactSelect, setError, setSuccess }) => {
       );
   
       const aliasSnapshot = await getDocs(aliasQuery);
+  
       if (!aliasSnapshot.empty) {
-        setError("Este alias ya está en uso.");
+        setError("Ya existe un contacto con ese alias.");
         return;
       }
   
-      // Si pasa las verificaciones, agregar el nuevo contacto
-      await addDoc(collection(db, "contacts"), {
+      // Si pasa las verificaciones, agregar el nuevo contacto      
+      const docRef = await addDoc(collection(db, "contacts"), {
         ownerId: currentUser.uid,
         email: newContactEmail,
         alias: newContactAlias,
       });
-  
-      setContacts([...contacts, { email: newContactEmail, alias: newContactAlias }]);
+
+      setContacts([...contacts, { id: docRef.id, email: newContactEmail, alias: newContactAlias }]);
       setNewContactEmail("");
       setNewContactAlias("");
       setShowAddContact(false);
       setSuccess("Contacto añadido con éxito.");
     } catch (error) {
-      setError("Error al añadir el contacto.");
+      setError(`Error al añadir el contacto: ${error.message}`);
     }
+  };
+  
+  const handleDeleteContact = async (contactId) => {
+    try {
+      await deleteDoc(doc(db, "contacts", contactId));
+      setContacts(contacts.filter(contact => contact.id !== contactId));
+      setSuccess("Contacto eliminado con éxito");
+    } catch (error) {
+      setError(`Error al eliminar el contacto: ${error.message}`);
+    }
+  };
+
+  const confirmDeleteContact = (contactId) => {
+    Alert.alert(
+      "Eliminar contacto",
+      "¿Estás seguro de que deseas eliminar este contacto?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Eliminar",
+          onPress: () => handleDeleteContact(contactId),
+          style: "destructive"
+        }
+      ],
+      { cancelable: true }
+    );
   };
 
   return (
@@ -123,34 +155,56 @@ const Contacts = ({ currentUser, onContactSelect, setError, setSuccess }) => {
             placeholder="Ingresa el alias del contacto"
             style={{ borderColor: "gray", borderWidth: 1, marginBottom: 8 }}
           />
-          <Button title="Agregar Contacto" onPress={handleAddContact} />
+          <Button title="Agregar Contacto" onPress={handleAddContact} disabled={loading} />
         </View>
       )}
 
-      {loading ? (
-        <ActivityIndicator size="large" />
-      ) : (
+      <Button 
+        title={showContacts ? "Ocultar contactos":"Mostrar contactos"}
+        onPress={() => setShowContacts(!showContacts)}
+      />
+
+      {showContacts && (
         <View>
-          <Text>Selecciona un Contacto</Text>
-          <Picker
-            selectedValue={selectedContact}
-            onValueChange={(itemValue) => {
-              setSelectedContact(itemValue);
-              onContactSelect(itemValue); // Envía el contacto seleccionado
-            }}
-          >
-            {contacts.length > 0 ? (
-              contacts.map((contact) => (
-                <Picker.Item
-                  key={contact.id}
-                  label={`${contact.alias} (${contact.email})`}
-                  value={contact.email}
-                />
-              ))
-            ) : (
-              <Picker.Item label="No hay contactos" value="" />
-            )}
-          </Picker>
+          {loading ? (
+            <ActivityIndicator size="large" />
+          ) : (
+            <View>
+              <Text>Selecciona un Contacto</Text>
+              <Picker
+                selectedValue={selectedContact}
+                onValueChange={(itemValue) => {
+                  setSelectedContact(itemValue);
+                  onContactSelect(itemValue);
+                }}
+              >
+                <Picker.Item label="Seleccione un contacto" value="" />
+                {contacts.length > 0 ? (
+                  contacts.map((contact) => (
+                    <Picker.Item
+                      key={contact.id}
+                      label={`${contact.alias} (${contact.email})`}
+                      value={contact.email}
+                    />
+                  ))
+                ) : (
+                  <Picker.Item label="No hay contactos" value="" />
+                )}
+              </Picker>
+
+              <Text>Eliminar Contacto</Text>
+              {contacts.map((contact) => (
+                <View key={contact.id}>
+                  <Text>{contact.alias} ({contact.email})</Text>
+                  <Button
+                    title="Eliminar"
+                    onPress={() => confirmDeleteContact(contact.id)}
+                    color="red"
+                  />
+                </View>
+              ))}
+            </View>
+          )}
         </View>
       )}
     </View>
