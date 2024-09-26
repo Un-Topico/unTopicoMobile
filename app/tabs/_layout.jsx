@@ -77,7 +77,14 @@ export default function TabLayout() {
           options={{
             href: null,
             headerShown: false,
-          }} // Oculta la pestaña de "Reportes"
+          }} 
+        />
+        <Tabs.Screen
+          name="changeNIP"
+          options={{
+            href: null,
+            headerShown: false,
+          }} 
         />
 
       </Tabs>

@@ -31,7 +31,7 @@ const settings = () => {
     Cambiar_NIP: {
       displayName: 'Cambiar NIP',
       iconName: 'circle',
-      onPress: () => Alert.alert('Navegando a Cambiar NIP'),
+      onPress: () => router.push('./changeNIP'),
     },
     Cerrar_Sesión: {
       displayName: 'Cerrar Sesión',

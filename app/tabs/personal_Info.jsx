@@ -3,14 +3,12 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Button, ActivityIndicator, StyleSheet, ScrollView } from "react-native";
 import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { useRouter } from "expo-router";
 import { app } from "../utils/firebaseConfig";
 import { UserProfile } from "../components/userProfile";
 
 export default function PersonalInfo() {
   const auth = getAuth(app);
   const { currentUser } = auth;
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [accountData, setAccountData] = useState(null);
 
