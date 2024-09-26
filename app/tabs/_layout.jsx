@@ -30,21 +30,21 @@ export default function TabLayout() {
           }}
         />
 
+        <Tabs.Screen
+          name="cards"
+          options={{
+            title: 'Mis Tarjetas',
+            tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="credit-card" color={color} />,
+            headerShown: false,
+          }}
+        />
+
         {/* Pestaña de inicio (Home) */}
         <Tabs.Screen
           name="home"
           options={{
             title: 'Home',
             tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="home" color={color} />,
-            headerShown: false,
-          }}
-        />
-
-        <Tabs.Screen
-          name="cards"
-          options={{
-            title: 'Mis Tarjetas',
-            tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="credit-card" color={color} />,
             headerShown: false,
           }}
         />
