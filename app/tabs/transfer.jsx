@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 
-export default  function Depositar () {
+const Transferir = () => {
   const [email, setEmail] = useState('');
   const [monto, setMonto] = useState('');
   const [descripcion, setDescripcion] = useState('');
@@ -17,7 +17,7 @@ export default  function Depositar () {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Depositar</Text>
+      <Text style={styles.title}>Transferir</Text>
 
       {/* Campo de correo electrónico */}
       <TextInput
@@ -52,7 +52,7 @@ export default  function Depositar () {
 
       {/* Botón para realizar el retiro */}
       <TouchableOpacity style={styles.button} onPress={handleRetiro}>
-        <Text style={styles.buttonText}>Realizar Retiro</Text>
+        <Text style={styles.buttonText}>Transferir</Text>
       </TouchableOpacity>
     </View>
   );
@@ -98,3 +98,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+export default Transferir;

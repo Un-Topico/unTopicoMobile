@@ -30,21 +30,21 @@ export default function TabLayout() {
           }}
         />
 
+        <Tabs.Screen
+          name="cards"
+          options={{
+            title: 'Mis Tarjetas',
+            tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="credit-card" color={color} />,
+            headerShown: false,
+          }}
+        />
+
         {/* Pestaña de inicio (Home) */}
         <Tabs.Screen
           name="home"
           options={{
             title: 'Home',
             tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="home" color={color} />,
-            headerShown: false,
-          }}
-        />
-
-        <Tabs.Screen
-          name="cards"
-          options={{
-            title: 'Mis Tarjetas',
-            tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="credit-card" color={color} />,
             headerShown: false,
           }}
         />
@@ -66,8 +66,62 @@ export default function TabLayout() {
         />
         */}
         <Tabs.Screen
+          name="deposit"
+          options={{
+            href: null,
+            headerShown: false,
+          }}
+        />
+        <Tabs.Screen
+          name="transfer"
+          options={{
+            href: null,
+            headerShown: false,
+          }}
+        />
+        <Tabs.Screen
+          name="withdraw"
+          options={{
+            href: null,
+            headerShown: false,
+          }}
+        />
+        <Tabs.Screen
           name="reportes"
-          options={{ href: null }} // Oculta la pestaña de "Reportes"
+          options={{
+            href: null,
+            headerShown: false,
+          }} // Oculta la pestaña de "Reportes"
+        />
+        <Tabs.Screen
+          name="personal_Info"
+          options={{
+            href: null,
+            headerShown: false,
+          }}
+        />
+        <Tabs.Screen
+          name="changeNIP"
+          options={{
+            href: null,
+            headerShown: false,
+          }}
+        />
+
+        <Tabs.Screen
+          name="FAQ"
+          options={{
+            href: null,
+            headerShown: false,
+          }}
+        />
+
+        <Tabs.Screen
+          name="chat"
+          options={{
+            href: null,
+            headerShown: false,
+          }}
         />
 
       </Tabs>

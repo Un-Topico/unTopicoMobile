@@ -8,7 +8,7 @@ const MONTO_PLACEHOLDER = 'Ingrese el monto';
 const DESCRIPCION_PLACEHOLDER = 'Descripción breve (opcional)';
 const BUTTON_TEXT = 'Realizar Retiro';
 
-export default function Retirar  () {
+const Retirar = () => {
   const [email, setEmail] = useState('');
   const [monto, setMonto] = useState('');
   const [descripcion, setDescripcion] = useState('');
@@ -107,3 +107,4 @@ const styles = StyleSheet.create({
   },
 });
 
+export default Retirar;

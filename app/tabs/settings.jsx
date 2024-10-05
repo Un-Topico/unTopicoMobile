@@ -1,25 +1,42 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { useRouter } from 'expo-router';
+import { getAuth, signOut } from "firebase/auth"; // Importa signOut
+import { app } from "../utils/firebaseConfig";
+
 
 const settings = () => {
-  
   const iconSize = 30;
   const iconColor = "#000000";
-  
+  const router = useRouter();
+  const auth = getAuth(app);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push("/login");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
+
   // Definiciones de los nombres de las opciones con sus íconos correspondientes
   const screenOptions = {
     Información_Personal: {
       displayName: 'Información Personal',
       iconName: 'address-book-o',
+      onPress: () => router.push('./personal_Info'),
     },
     Cambiar_NIP: {
       displayName: 'Cambiar NIP',
       iconName: 'circle',
+      onPress: () => router.push('./changeNIP'),
     },
     Cerrar_Sesión: {
       displayName: 'Cerrar Sesión',
       iconName: 'sign-out',
+      onPress: handleLogout,
     },
     // Se pueden agregar más elementos aquí
   };
@@ -28,19 +45,21 @@ const settings = () => {
     Preguntas_Frecuentes: {
       displayName: 'Preguntas Frecuentes',
       iconName: 'question-circle-o',
+      onPress: () => router.push('./FAQ'),
     },
     Chat_Soporte: {
       displayName: 'Chat con Soporte',
       iconName: 'commenting-o',
+      onPress: () => router.push('./chat'),
     },
   };
 
   // Renderiza cada opción de configuración de manera dinámica
   const renderProfileOptions = () => {
-    return Object.entries(screenOptions).map(([screenName, { displayName, iconName }]) => (
-      <TouchableOpacity key={screenName} style={styles.button}>
+    return Object.entries(screenOptions).map(([screenName, { displayName, iconName, onPress }]) => (
+      <TouchableOpacity key={screenName} style={styles.button} onPress={onPress}>
         <View style={styles.option}>
-          <Icon name={iconName} size={iconSize} color={iconColor} style={styles.optionIcon}/>
+          <Icon name={iconName} size={iconSize} color={iconColor} style={styles.optionIcon} />
           <Text style={styles.optionText}>{displayName}</Text>
         </View>
       </TouchableOpacity>
@@ -49,10 +68,10 @@ const settings = () => {
 
   // Renderiza cada opción de configuración de manera dinámica
   const renderSettingsOptions = () => {
-    return Object.entries(screenOptions_Settings).map(([screenName, { displayName, iconName }]) => (
-      <TouchableOpacity key={screenName} style={styles.button}>
+    return Object.entries(screenOptions_Settings).map(([screenName, { displayName, iconName, onPress }]) => (
+      <TouchableOpacity key={screenName} style={styles.button} onPress={onPress}>
         <View style={styles.option}>
-          <Icon name={iconName} size={iconSize} color={iconColor} style={styles.optionIcon}/>
+          <Icon name={iconName} size={iconSize} color={iconColor} style={styles.optionIcon} />
           <Text style={styles.optionText}>{displayName}</Text>
         </View>
       </TouchableOpacity>
@@ -63,7 +82,6 @@ const settings = () => {
     <View style={styles.container}>
       <Text style={styles.title0}>Settings</Text>
 
-      
       <View style={styles.ViewProfImage}>
         <Icon name="user-circle-o" size={100} color={iconColor} style={styles.ImageProfile} />
         <Text style={styles.title}>Juancho Pérez</Text>
