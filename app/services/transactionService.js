@@ -1,7 +1,6 @@
 import { saveTransaction, saveTransfer, updateRecipientBalance,getPhoneNumberByOwnerId } from './firestoreTransactionService';
 import { getFirestore, query, collection, where, getDocs, setDoc, addDoc, doc, getDoc } from 'firebase/firestore';
 
-import axios from 'axios'; // Asegúrate de tener axios instalado 
 const db = getFirestore();
 const sendMessage = async (phoneNumber, amount) => {
   try {
