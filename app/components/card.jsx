@@ -1,27 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ImageBackground, StyleSheet, Dimensions } from 'react-native';
+import { getFirestore, collection, query, where, onSnapshot } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { app } from '../utils/firebaseConfig';
+import Swiper from 'react-native-swiper-flatlist';
 
 // Define el ancho de la pantalla
 const { width } = Dimensions.get('window');
 
-// Supongamos que `cardData` es un objeto recibido como prop
-const cardData = {
-  balance: '$100,200,000.00',
-  cardType: 'Corriente', //la otra es Ahorro
-  cardNumber: '**** **** **** 1234',
-  cardHolder: 'Juancho Pérez',
-  cvv: '123',
-  expiryDate: '12/25',
-  cardSource: require('../../assets/images/tarjeta.png'),
-
-};
-
-const Card = () => {
+const Card = ({ cardData }) => {
   return (
     // Tarjeta de débito
     <View style={styles.card}>
       <ImageBackground
-        source={cardData.cardSource}
+        source={require('../../assets/images/tarjeta.png')}
         style={styles.cardImage}
         imageStyle={styles.cardImageStyle}
       />
@@ -54,8 +46,50 @@ const Card = () => {
   );
 };
 
-const styles = StyleSheet.create ({
-    // Estilo de la tarjeta
+const UserCards = () => {
+  const [cards, setCards] = useState([]);
+  const auth = getAuth(app);
+  const { currentUser } = auth;
+  const db = getFirestore(app);
+
+  useEffect(() => {
+    const q = query(
+      collection(db, 'cards'),
+      where('ownerId', '==', currentUser.uid)
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (querySnapshot) => {
+        const cardsData = [];
+        querySnapshot.forEach((doc) => {
+          cardsData.push({ ...doc.data(), id: doc.id });
+        });
+        setCards(cardsData);
+      },
+      (error) => {
+        console.error('Error al obtener las tarjetas:', error);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [currentUser.uid, db]);
+
+  return (
+    <View style={styles.swiperContainer}>
+      <Swiper showPagination={false}>
+        {cards.map((card) => (
+          <Card key={card.id} cardData={card} />
+        ))}
+      </Swiper>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  swiperContainer: {
+    height: width * 0.75,
+  },
   card: {
     width: width * 0.9, // Usa un porcentaje del ancho de la pantalla
     height: width * 0.6, // Ajusta la altura en proporción al ancho
@@ -66,12 +100,10 @@ const styles = StyleSheet.create ({
     shadowOpacity: 0.8,
     shadowRadius: 5,
     elevation: 5,
-    //backgroundColor: "red",
-    marginTop: 120,
+    marginLeft: (width - width * 0.9) / 2, // Centrar la tarjeta en el swiper
   },
   cardContent: {
-    // backgroundColor:'yellow',
-    position: 'absolute'
+    position: 'absolute',
   },
   cardImage: {
     flex: 1,
@@ -79,35 +111,19 @@ const styles = StyleSheet.create ({
   },
   cardImageStyle: {
     borderRadius: 15,
-    resizeMode: 'contain', // Ajusta la imagen para que se vea completa sin recorte
+    resizeMode: 'contain',
   },
-  cardInfoContainer: {
-    flex: 1,
-    width: width * 0.9, // Usa un porcentaje del ancho de la pantalla
-    // height: width * 0.6, // Ajusta la altura en proporción al ancho
-    // backgroundColor: 'purple',
-    //marginTop:100,
-    flexDirection: 'row',
-    height: width * 0.33,
-    justifyContent: 'space-around',
-    alignItems: 'flex-end',
-  },
-
-  // Estilo de los elementos de la tarjeta
   balanceTextContainer: {
     alignSelf: 'flex-end',
     marginRight: '7%',
     height: width * 0.15,
-    //backgroundColor: 'purple',
-    justifyContent: 'flex-end'
-
+    justifyContent: 'flex-end',
   },
   cardTypeContainer: {
     alignSelf: 'flex-end',
     marginRight: '7%',
     height: width * 0.05,
-    //backgroundColor: 'red',
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
   },
   balanceText: {
     color: 'white',
@@ -118,20 +134,25 @@ const styles = StyleSheet.create ({
     color: 'white',
     fontSize: 16,
   },
-  view_cardNumber_Holder: {
+  cardInfoContainer: {
+    flex: 1,
+    width: width * 0.9,
+    flexDirection: 'row',
+    height: width * 0.33,
+    justifyContent: 'space-around',
+    alignItems: 'flex-end',
   },
+  view_cardNumber_Holder: {},
   text_cardNumber_Holder: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 18,
   },
-  view_cvv_expire: {
-
-  },
+  view_cvv_expire: {},
   text_cvv_expire: {
     color: 'white',
     fontSize: 16,
   },
 });
 
-export default Card;
+export default UserCards;

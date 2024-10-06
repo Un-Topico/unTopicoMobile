@@ -1,16 +1,49 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
 import { getAuth, signOut } from "firebase/auth"; // Importa signOut
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query, 
+  where
+} from "firebase/firestore";
 import { app } from "../utils/firebaseConfig";
 
-
-const settings = () => {
+const Settings = () => {
   const iconSize = 30;
   const iconColor = "#000000";
   const router = useRouter();
   const auth = getAuth(app);
+  const db = getFirestore(app);
+  const { currentUser } = auth;
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      if (currentUser) {
+        try {
+          const accountsRef = collection(db, "accounts");
+          const accountQuery = query(accountsRef, where("ownerId", "==", currentUser.uid));
+          const querySnapshot = await getDocs(accountQuery);
+          if (!querySnapshot.empty) {
+            const userDoc = querySnapshot.docs[0];
+           
+          if (userDoc) {
+            const userData = userDoc.data();
+            setUserName(userData.name);
+          }}
+        } catch (error) {
+          console.error("Error al obtener el nombre del usuario: ", error);
+        }
+      }
+    
+    }
+
+    fetchUserName();
+  }, [currentUser, db]);
 
   const handleLogout = async () => {
     try {
@@ -84,7 +117,7 @@ const settings = () => {
 
       <View style={styles.ViewProfImage}>
         <Icon name="user-circle-o" size={100} color={iconColor} style={styles.ImageProfile} />
-        <Text style={styles.title}>Juancho Pérez</Text>
+        <Text style={styles.title}>{userName}</Text>
       </View>
 
       <View style={styles.ViewSettings}>
@@ -160,4 +193,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default settings;
+export default Settings;

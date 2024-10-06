@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { View, Text, TextInput, Button, Alert } from "react-native";
+import { View, Text, TextInput, Button} from "react-native";
 import Contacts from "./contacts";
 import { handleTransaction } from "../services/transactionService";
 import { getCardDoc, listenToCardDoc } from "../services/firestoreTransactionService";
