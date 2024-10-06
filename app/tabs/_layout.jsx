@@ -38,14 +38,6 @@ export default function TabLayout() {
             headerShown: false,
           }}
         />
-        <Tabs.Screen
-          name="chat"
-          options={{
-            title: 'Soporte',
-            tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="credit-card" color={color} />,
-            headerShown: false,
-          }}
-        />
 
         {/* Pestaña de inicio (Home) */}
         <Tabs.Screen
@@ -124,13 +116,13 @@ export default function TabLayout() {
           }}
         />
 
-        {/* <Tabs.Screen
+        <Tabs.Screen
           name="chat"
           options={{
             href: null,
             headerShown: false,
           }}
-        /> */}
+        />
 
       </Tabs>
     </GestureHandlerRootView>
