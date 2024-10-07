@@ -22,7 +22,7 @@ export default function Layout() {
     if (!loading) {
       // Navegación controlada después de que el estado del usuario haya sido cargado
       if (user) {
-        router.replace('./tabs/profile');
+        router.replace('./tabs/home');
       } 
     }
   }, [user, loading, router]);
@@ -44,7 +44,6 @@ export default function Layout() {
       <Stack.Screen name="transferir" options={{ headerShown: false }} />
       <Stack.Screen name="reportes" options={{ headerShown: false }} />
 
-      <Stack.Screen name="profile" options={{ headerShown: false }} />
     </Stack>
   );
 }

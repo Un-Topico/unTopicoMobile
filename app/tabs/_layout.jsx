@@ -21,17 +21,6 @@ export default function TabLayout() {
             },
           }}
         >
-
-          {/* Pestaña de profile (Home de Alexis) */}
-          <Tabs.Screen
-            name="profile"
-            options={{
-              title: 'profile Alexis',
-              tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="home" color={color} />,
-              headerShown: false,
-            }}
-          />
-
           <Tabs.Screen
             name="cards"
             options={{

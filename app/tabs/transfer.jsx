@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import { getFirestore, doc, getDoc, setDoc, collection, addDoc,query,where,getDocs } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, collection, addDoc,query,where,getDocs } from 'firebase/firestore';
 import { useRouter } from 'expo-router';
 import { getAuth } from 'firebase/auth';
 import { useCard } from '../context/CardContext'; // Importar el contexto de la tarjeta seleccionada
