@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, Alert, Button } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, Alert, Button, Platform } from 'react-native';
 import { getFirestore, collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
-import DatePicker from 'react-native-date-picker';
+import DateTimePicker from '@react-native-community/datetimepicker'; // Usar DateTimePicker
 import { app } from '../utils/firebaseConfig';
 import { useCard } from '../context/CardContext'; // Importa el contexto para la tarjeta seleccionada
 
@@ -10,23 +10,21 @@ const TransactionHistory = () => {
   const [filter, setFilter] = useState('all'); // Estado para el filtro de tipo
   const [startDate, setStartDate] = useState(null); // Estado para la fecha de inicio
   const [endDate, setEndDate] = useState(null); // Estado para la fecha de fin
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false); // Mostrar selector de fecha de inicio
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false); // Mostrar selector de fecha de fin
   const [error, setError] = useState(null); // Estado para mostrar errores
   const [currentPage, setCurrentPage] = useState(1); // Estado para la pagina actual
   const transactionsPerPage = 5; // Definir el numero de transacciones por pagina
   const db = getFirestore(app);
-  const [openStartDatePicker, setOpenStartDatePicker] = useState(false);
-  const [openEndDatePicker, setOpenEndDatePicker] = useState(false);
 
   const { selectedCard } = useCard(); // Usar el contexto de la tarjeta seleccionada
 
   useEffect(() => {
-    // No hacer nada si no hay una tarjeta seleccionada
     if (!selectedCard) {
       setTransactions([]);
       return;
     }
 
-    // Construir la consulta basada en los filtros seleccionados
     let q = query(collection(db, 'transactions'), where('card_id', '==', selectedCard.id));
 
     if (filter !== 'all') {
@@ -37,7 +35,6 @@ const TransactionHistory = () => {
       q = query(q, where('transaction_date', '>=', startDate), where('transaction_date', '<=', endDate));
     }
 
-    // Agregar ordenación por fecha
     q = query(q, orderBy('transaction_date', 'desc'));
 
     const unsubscribe = onSnapshot(
@@ -49,7 +46,7 @@ const TransactionHistory = () => {
         });
 
         setTransactions(transactionsData);
-        setError(null); // Limpiar el error si la consulta tiene éxito
+        setError(null);
       },
       (error) => {
         console.error('Error al obtener transacciones:', error);
@@ -57,16 +54,25 @@ const TransactionHistory = () => {
       }
     );
 
-    // Cleanup listener on unmount
     return () => unsubscribe();
   }, [db, selectedCard, filter, startDate, endDate]);
 
-  // Obtener las transacciones de la pagina actual
+  const handleStartDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || startDate;
+    setShowStartDatePicker(Platform.OS === 'ios'); // Cerrar el picker para Android
+    setStartDate(currentDate);
+  };
+
+  const handleEndDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || endDate;
+    setShowEndDatePicker(Platform.OS === 'ios'); // Cerrar el picker para Android
+    setEndDate(currentDate);
+  };
+
   const indexOfLastTransaction = currentPage * transactionsPerPage;
   const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
   const currentTransactions = transactions.slice(indexOfFirstTransaction, indexOfLastTransaction);
 
-  // Cambiar de pagina
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
@@ -93,33 +99,25 @@ const TransactionHistory = () => {
       {/* Filtro de fecha */}
       <View style={styles.dateContainer}>
         <Text>Filtrar por fecha:</Text>
-        <Button title="Fecha inicio" onPress={() => setOpenStartDatePicker(true)} />
-        <DatePicker
-          modal
-          open={openStartDatePicker}
-          date={startDate || new Date()}
-          onConfirm={(date) => {
-            setOpenStartDatePicker(false);
-            setStartDate(date);
-          }}
-          onCancel={() => {
-            setOpenStartDatePicker(false);
-          }}
-        />
+        <Button title="Fecha inicio" onPress={() => setShowStartDatePicker(true)} />
+        {showStartDatePicker && (
+          <DateTimePicker
+            value={startDate || new Date()}
+            mode="date"
+            display="default"
+            onChange={handleStartDateChange}
+          />
+        )}
 
-        <Button title="Fecha fin" onPress={() => setOpenEndDatePicker(true)} />
-        <DatePicker
-          modal
-          open={openEndDatePicker}
-          date={endDate || new Date()}
-          onConfirm={(date) => {
-            setOpenEndDatePicker(false);
-            setEndDate(date);
-          }}
-          onCancel={() => {
-            setOpenEndDatePicker(false);
-          }}
-        />
+        <Button title="Fecha fin" onPress={() => setShowEndDatePicker(true)} />
+        {showEndDatePicker && (
+          <DateTimePicker
+            value={endDate || new Date()}
+            mode="date"
+            display="default"
+            onChange={handleEndDateChange}
+          />
+        )}
       </View>
 
       {error && <Text style={styles.errorText}>{error}</Text>}
