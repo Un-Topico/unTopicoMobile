@@ -4,60 +4,51 @@ import { getFirestore, collection, query, where, onSnapshot } from 'firebase/fir
 import { getAuth } from 'firebase/auth';
 import { app } from '../utils/firebaseConfig';
 import Swiper from 'react-native-swiper-flatlist';
+import { useCard } from '../context/CardContext';  // Importa el contexto
 
-// Define el ancho de la pantalla
 const { width } = Dimensions.get('window');
 
-const Card = ({ cardData }) => {
-  return (
-    // Tarjeta de débito
-    <View style={styles.card}>
-      <ImageBackground
-        source={require('../../assets/images/tarjeta.png')}
-        style={styles.cardImage}
-        imageStyle={styles.cardImageStyle}
-      />
-      <View style={styles.cardContent}>
-        {/* Saldo */}
-        <View style={styles.balanceTextContainer}>
-          <Text style={styles.balanceText}>{cardData.balance}</Text>
+const Card = ({ cardData }) => (
+  <View style={styles.card}>
+    <ImageBackground
+      source={require('../../assets/images/tarjeta.png')}
+      style={styles.cardImage}
+      imageStyle={styles.cardImageStyle}
+    />
+    <View style={styles.cardContent}>
+      <View style={styles.balanceTextContainer}>
+        <Text style={styles.balanceText}>{cardData.balance}</Text>
+      </View>
+      <View style={styles.cardTypeContainer}>
+        <Text style={styles.cardType}>{cardData.cardType}</Text>
+      </View>
+      <View style={styles.cardInfoContainer}>
+        <View style={styles.view_cardNumber_Holder}>
+          <Text style={styles.text_cardNumber_Holder}>{cardData.cardNumber}</Text>
+          <Text style={styles.text_cardNumber_Holder}>{cardData.cardHolder}</Text>
         </View>
-
-        {/* Tipo de tarjeta */}
-        <View style={styles.cardTypeContainer}>
-          <Text style={styles.cardType}>{cardData.cardType}</Text>
-        </View>
-
-        <View style={styles.cardInfoContainer}>
-          {/* Número de la tarjeta y Nombre del propietario */}
-          <View style={styles.view_cardNumber_Holder}>
-            <Text style={styles.text_cardNumber_Holder}>{cardData.cardNumber}</Text>
-            <Text style={styles.text_cardNumber_Holder}>{cardData.cardHolder}</Text>
-          </View>
-
-          {/* CVV y Fecha de expiración */}
-          <View style={styles.view_cvv_expire}>
-            <Text style={styles.text_cvv_expire}>{`CVV: ${cardData.cvv}`}</Text>
-            <Text style={styles.text_cvv_expire}>{`Exp: ${cardData.expiryDate}`}</Text>
-          </View>
+        <View style={styles.view_cvv_expire}>
+          <Text style={styles.text_cvv_expire}>{`CVV: ${cardData.cvv}`}</Text>
+          <Text style={styles.text_cvv_expire}>{`Exp: ${cardData.expiryDate}`}</Text>
         </View>
       </View>
     </View>
-  );
-};
+  </View>
+);
 
 const UserCards = () => {
   const [cards, setCards] = useState([]);
   const auth = getAuth(app);
   const { currentUser } = auth;
   const db = getFirestore(app);
+  const { setSelectedCard } = useCard(); // Obtiene la función para actualizar la tarjeta seleccionada
 
   useEffect(() => {
     const q = query(
       collection(db, 'cards'),
       where('ownerId', '==', currentUser.uid)
     );
-
+  
     const unsubscribe = onSnapshot(
       q,
       (querySnapshot) => {
@@ -66,18 +57,25 @@ const UserCards = () => {
           cardsData.push({ ...doc.data(), id: doc.id });
         });
         setCards(cardsData);
+        if (cardsData.length > 0 && setSelectedCard) {
+          setSelectedCard(cardsData[0]); // Establece la primera tarjeta como seleccionada por defecto
+        }
       },
       (error) => {
         console.error('Error al obtener las tarjetas:', error);
       }
     );
-
+  
     return () => unsubscribe();
-  }, [currentUser.uid, db]);
+  }, [currentUser.uid, db, setSelectedCard]);
+  
 
   return (
     <View style={styles.swiperContainer}>
-      <Swiper showPagination={false}>
+      <Swiper
+        showPagination={false}
+        onChangeIndex={({ index }) => setSelectedCard(cards[index])} // Actualiza la tarjeta seleccionada cuando cambia el índice del Swiper
+      >
         {cards.map((card) => (
           <Card key={card.id} cardData={card} />
         ))}
@@ -91,8 +89,8 @@ const styles = StyleSheet.create({
     height: width * 0.75,
   },
   card: {
-    width: width * 0.9, // Usa un porcentaje del ancho de la pantalla
-    height: width * 0.6, // Ajusta la altura en proporción al ancho
+    width: width * 0.9,
+    height: width * 0.6,
     borderRadius: 15,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -100,7 +98,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 5,
     elevation: 5,
-    marginLeft: (width - width * 0.9) / 2, // Centrar la tarjeta en el swiper
+    marginLeft: (width - width * 0.9) / 2,
   },
   cardContent: {
     position: 'absolute',
