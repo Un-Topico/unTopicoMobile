@@ -121,8 +121,11 @@ const Transferir = () => {
       await setDoc(recipientCardRef, { balance: recipientNewBalance }, { merge: true });
 
       // Guardar la transferencia en la colección 'transfers'
-      await addDoc(collection(db, 'transfers'), {
-        transfer_id: `transfer_${Date.now()}`,
+      const transferId = `transfer_${Date.now()}`;
+      const transferRef = doc(db, 'transfers', transferId); 
+      
+      await setDoc(transferRef, {
+        transfer_id: transferId,
         from_card_id: selectedCard.id,
         to_card_id: recipientCardDoc.id,
         amount: parsedMonto,
@@ -132,6 +135,7 @@ const Transferir = () => {
 
       // Guardar la transacción en la colección 'transactions'
       await addDoc(collection(db, 'transactions'), {
+
         transaction_id: `transaction_${Date.now()}`,
         card_id: selectedCard.id,
         transaction_type: 'Transferencia',
@@ -139,13 +143,22 @@ const Transferir = () => {
         transaction_date: new Date(),
         description: descripcion || "Sin descripción",
         status: 'sent',
-        ownerId: selectedCard.ownerId,
+      });
+      await addDoc(collection(db, 'transactions'), {
+
+        transaction_id: `transaction_${Date.now()+1}`,
+        card_id: recipientCardDoc.id,
+        transaction_type: 'Transferencia',
+        amount: parsedMonto,
+        transaction_date: new Date(),
+        description: descripcion || "Sin descripción",
+        status: 'received',
       });
 
       // Crear la notificación para el destinatario
       await addDoc(collection(db, 'notifications'), {
         notificationId: `notification_${Date.now()}`,
-        transfer_id: `transfer_${Date.now()}`,
+        transfer_id: transferId,
         ownerId: recipientOwnerId,
         message: `Has recibido una transferencia de $${parsedMonto} MXN.`,
         cardId: recipientCardDoc.id,
