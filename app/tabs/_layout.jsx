@@ -106,6 +106,13 @@ export default function TabLayout() {
               headerShown: false,
             }}
           />
+          <Tabs.Screen
+            name="Notifications"
+            options={{
+              href: null,
+              headerShown: false,
+            }}
+          />
         </Tabs>
       </CardProvider>
     </GestureHandlerRootView>

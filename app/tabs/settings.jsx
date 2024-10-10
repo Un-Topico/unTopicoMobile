@@ -61,6 +61,11 @@ const Settings = () => {
       iconName: 'address-book-o',
       onPress: () => router.push('./personal_Info'),
     },
+    Notifications: {
+      displayName: ' Notificaciones',
+      iconName: 'barcode',
+      onPress: () => router.push('./Notifications'),
+    },
     Cambiar_NIP: {
       displayName: 'Cambiar NIP',
       iconName: 'circle',
