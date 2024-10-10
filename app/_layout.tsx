@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { onAuthStateChanged, getAuth, User } from 'firebase/auth';
 import { useRouter } from 'expo-router';
+import { AuthProvider } from './auth/AuthContext';
+
 export default function Layout() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -30,20 +32,23 @@ export default function Layout() {
   
 
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="login" options={{ headerShown: false }} />
-      <Stack.Screen name="register" options={{ headerShown: false }} />
+    <AuthProvider>
+      <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="register" options={{ headerShown: false }} />
 
-      <Stack.Screen name="home" options={{ headerShown: false }} />
-      <Stack.Screen name="perfil" options={{ headerShown: false }} />
-      <Stack.Screen name="accountSetup" options={{ headerShown: false }} />
+        <Stack.Screen name="home" options={{ headerShown: false }} />
+        <Stack.Screen name="perfil" options={{ headerShown: false }} />
+        <Stack.Screen name="accountSetup" options={{ headerShown: false }} />
 
-      <Stack.Screen name="depositar" options={{ headerShown: false }} />
-      <Stack.Screen name="retirar" options={{ headerShown: false }} />
-      <Stack.Screen name="transferir" options={{ headerShown: false }} />
-      <Stack.Screen name="reportes" options={{ headerShown: false }} />
+        <Stack.Screen name="depositar" options={{ headerShown: false }} />
+        <Stack.Screen name="retirar" options={{ headerShown: false }} />
+        <Stack.Screen name="transferir" options={{ headerShown: false }} />
+        <Stack.Screen name="reportes" options={{ headerShown: false }} />
 
-    </Stack>
+
+      </Stack>
+    </AuthProvider>
   );
 }

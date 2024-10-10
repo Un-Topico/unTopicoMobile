@@ -8,122 +8,119 @@ export default function TabLayout() {
   const labelSize = 12; // Tamaño global para el texto
 
   return (
-    // Envuelve con GestureHandlerRootView
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      {/* Envuelve las Tabs con el proveedor del contexto */}
-      <CardProvider>
-        <Tabs
-          initialRouteName="profile" // Define la pantalla inicial
-          screenOptions={{
-            tabBarActiveTintColor: 'blue',
-            tabBarLabelStyle: {
-              fontSize: labelSize, // Ajusta el tamaño del texto aquí
-            },
-          }}
-        >
-          <Tabs.Screen
-            name="cards"
-            options={{
-              title: 'Mis Tarjetas',
-              tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="credit-card" color={color} />,
-              headerShown: false,
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <CardProvider>
+          <Tabs
+            initialRouteName="profile" // Define la pantalla inicial
+            screenOptions={{
+              tabBarActiveTintColor: 'blue',
+              tabBarLabelStyle: {
+                fontSize: labelSize, // Ajusta el tamaño del texto aquí
+              },
             }}
-          />
+          >
+            <Tabs.Screen
+              name="cards"
+              options={{
+                title: 'Mis Tarjetas',
+                tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="credit-card" color={color} />,
+                headerShown: false,
+              }}
+            />
 
-          {/* Pestaña de inicio (Home) */}
-          <Tabs.Screen
-            name="home"
-            options={{
-              title: 'Home',
-              tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="home" color={color} />,
-              headerShown: false,
-            }}
-          />
+            <Tabs.Screen
+              name="home"
+              options={{
+                title: 'Home',
+                tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="home" color={color} />,
+                headerShown: false,
+              }}
+            />
 
-          <Tabs.Screen
-            name="settings"
-            options={{
-              title: 'Settings',
-              tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="cog" color={color} />,
-              headerShown: false,
-            }}
-          />
+            <Tabs.Screen
+              name="settings"
+              options={{
+                title: 'Settings',
+                tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="cog" color={color} />,
+                headerShown: false,
+              }}
+            />
 
-          <Tabs.Screen
-            name="servicios"
-            options={{
-              title: 'Servicios',
-              tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="list-alt" color={color} />,
-              headerShown: false,
-            }}
-          />
+            <Tabs.Screen
+              name="servicios"
+              options={{
+                title: 'Servicios',
+                tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="list-alt" color={color} />,
+                headerShown: false,
+              }}
+            />
 
-          {/* Pestañas ocultas */}
-          <Tabs.Screen
-            name="deposit"
-            options={{
-              href: null,
-              headerShown: false,
-            }}
-          />
-          <Tabs.Screen
-            name="transfer"
-            options={{
-              href: null,
-              headerShown: false,
-            }}
-          />
-          <Tabs.Screen
-            name="withdraw"
-            options={{
-              href: null,
-              headerShown: false,
-            }}
-          />
-          <Tabs.Screen
-            name="reportes"
-            options={{
-              href: null,
-              headerShown: false,
-            }}
-          />
-          <Tabs.Screen
-            name="personal_Info"
-            options={{
-              href: null,
-              headerShown: false,
-            }}
-          />
-          <Tabs.Screen
-            name="changeNIP"
-            options={{
-              href: null,
-              headerShown: false,
-            }}
-          />
-          <Tabs.Screen
-            name="FAQ"
-            options={{
-              href: null,
-              headerShown: false,
-            }}
-          />
-          <Tabs.Screen
-            name="chat"
-            options={{
-              href: null,
-              headerShown: false,
-            }}
-          />
-          <Tabs.Screen
-            name="Notifications"
-            options={{
-              href: null,
-              headerShown: false,
-            }}
-          />
-        </Tabs>
-      </CardProvider>
-    </GestureHandlerRootView>
+            {/* Pestañas ocultas */}
+            <Tabs.Screen
+              name="deposit"
+              options={{
+                href: null,
+                headerShown: false,
+              }}
+            />
+            <Tabs.Screen
+              name="transfer"
+              options={{
+                href: null,
+                headerShown: false,
+              }}
+            />
+            <Tabs.Screen
+              name="withdraw"
+              options={{
+                href: null,
+                headerShown: false,
+              }}
+            />
+            <Tabs.Screen
+              name="reportes"
+              options={{
+                href: null,
+                headerShown: false,
+              }}
+            />
+            <Tabs.Screen
+              name="personal_Info"
+              options={{
+                href: null,
+                headerShown: false,
+              }}
+            />
+            <Tabs.Screen
+              name="changeNIP"
+              options={{
+                href: null,
+                headerShown: false,
+              }}
+            />
+            <Tabs.Screen
+              name="FAQ"
+              options={{
+                href: null,
+                headerShown: false,
+              }}
+            />
+            <Tabs.Screen
+              name="chat"
+              options={{
+                href: null,
+                headerShown: false,
+              }}
+            />
+            <Tabs.Screen
+              name="Notifications"
+              options={{
+                href: null,
+                headerShown: false,
+              }}
+            />
+          </Tabs>
+        </CardProvider>
+      </GestureHandlerRootView>
   );
 }
