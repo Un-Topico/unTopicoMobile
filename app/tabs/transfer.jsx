@@ -154,7 +154,6 @@ const Transferir = () => {
         description: descripcion || "Sin descripción",
         status: 'received',
       });
-
       // Crear la notificación para el destinatario
       await addDoc(collection(db, 'notifications'), {
         notificationId: `notification_${Date.now()}`,
