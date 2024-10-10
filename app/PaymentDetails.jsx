@@ -1,20 +1,19 @@
 import React from 'react';
-import {useAuth} from './auth/AuthContext';
-import { PaymentHistory } from './components/PaymentHistory';
-import { View, Text } from 'react-native';
+import { View, Text, Button } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-export const PaymentDetails = () => {
-    const { currentUser } = useAuth();
-
-    if (!currentUser) {
-        return (
-            <View>
-                <Text>No estás autenticado. Por favor, inicia sesión.</Text>
-            </View>
-        );
-    }
+const PaymentDetails = () => {
+    const navigation = useNavigation();
 
     return (
-        <PaymentHistory currentUser={currentUser} />
+        <View>
+            <Text>Detalles de Pago</Text>
+            <Button
+                title="Ver Historial de Pagos"
+                onPress={() => navigation.navigate('PaymentHistory')}
+            />
+        </View>
     );
 };
+
+export default PaymentDetails;

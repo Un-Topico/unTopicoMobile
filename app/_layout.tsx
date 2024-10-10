@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { onAuthStateChanged, getAuth, User } from 'firebase/auth';
 import { useRouter } from 'expo-router';
-import { AuthProvider } from './auth/AuthContext';
 
 export default function Layout() {
   const [user, setUser] = useState<User | null>(null);
@@ -32,7 +31,6 @@ export default function Layout() {
   
 
   return (
-    <AuthProvider>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
@@ -49,6 +47,5 @@ export default function Layout() {
 
 
       </Stack>
-    </AuthProvider>
   );
 }
