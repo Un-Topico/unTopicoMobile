@@ -49,6 +49,15 @@ export default function TabLayout() {
             }}
           />
 
+          <Tabs.Screen
+            name="servicios"
+            options={{
+              title: 'Servicios',
+              tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="list-alt" color={color} />,
+              headerShown: false,
+            }}
+          />
+
           {/* Pestañas ocultas */}
           <Tabs.Screen
             name="deposit"
@@ -101,6 +110,20 @@ export default function TabLayout() {
           />
           <Tabs.Screen
             name="chat"
+            options={{
+              href: null,
+              headerShown: false,
+            }}
+          />
+          <Tabs.Screen
+            name="Notifications"
+            options={{
+              href: null,
+              headerShown: false,
+            }}
+          />
+          <Tabs.Screen
+            name="PaymentDetails"
             options={{
               href: null,
               headerShown: false,
