@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
 import { getAuth, signOut } from "firebase/auth";
@@ -103,36 +103,41 @@ const Settings = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title0}>Settings</Text>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        <Text style={styles.title0}>Settings</Text>
 
-      <View style={styles.ViewProfImage}>
-        {userImageURL ? (
-          <Image 
-            source={{ uri: userImageURL }} 
-            style={styles.ImageProfile} 
-            resizeMode="cover"
-          />
-        ) : (
-          <Icon name="user-circle-o" size={100} color={iconColor} style={styles.ImageProfile} />
-        )}
-        <Text style={styles.title}>{userName}</Text>
-      </View>
+        <View style={styles.ViewProfImage}>
+          {userImageURL ? (
+            <Image 
+              source={{ uri: userImageURL }} 
+              style={styles.ImageProfile} 
+              resizeMode="cover"
+            />
+          ) : (
+            <Icon name="user-circle-o" size={100} color={iconColor} style={styles.ImageProfile} />
+          )}
+          <Text style={styles.title}>{userName}</Text>
+        </View>
 
-      <View style={styles.ViewSettings}>
-        <Text style={styles.title2}>Profile</Text>
-        {renderOptions(screenOptions)}
-      </View>
+        <View style={styles.ViewSettings}>
+          <Text style={styles.title2}>Profile</Text>
+          {renderOptions(screenOptions)}
+        </View>
 
-      <View style={styles.ViewSupport}>
-        <Text style={styles.title2}>Soporte</Text>
-        {renderOptions(screenOptions_Settings)}
+        <View style={styles.ViewSupport}>
+          <Text style={styles.title2}>Soporte</Text>
+          {renderOptions(screenOptions_Settings)}
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    paddingBottom: 70, // Para agregar un pequeño espacio al final
+  },
   container: {
     flex: 1,
     backgroundColor: '#f0f0f0',
