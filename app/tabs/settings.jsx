@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
-import { getAuth, signOut } from "firebase/auth"; // Importa signOut
+import { getAuth, signOut } from "firebase/auth";
 import {
   getFirestore,
   collection,
@@ -20,9 +20,10 @@ const Settings = () => {
   const db = getFirestore(app);
   const { currentUser } = auth;
   const [userName, setUserName] = useState("");
+  const [userImageURL, setUserImageURL] = useState("");
 
   useEffect(() => {
-    const fetchUserName = async () => {
+    const fetchUserData = async () => {
       if (currentUser) {
         try {
           const accountsRef = collection(db, "accounts");
@@ -30,19 +31,19 @@ const Settings = () => {
           const querySnapshot = await getDocs(accountQuery);
           if (!querySnapshot.empty) {
             const userDoc = querySnapshot.docs[0];
-           
-          if (userDoc) {
-            const userData = userDoc.data();
-            setUserName(userData.name);
-          }}
+            if (userDoc) {
+              const userData = userDoc.data();
+              setUserName(userData.name);
+              setUserImageURL(userData.profileImage);
+            }
+          }
         } catch (error) {
-          console.error("Error al obtener el nombre del usuario: ", error);
+          console.error("Error al obtener los datos del usuario: ", error);
         }
       }
-    
-    }
+    };
 
-    fetchUserName();
+    fetchUserData();
   }, [currentUser, db]);
 
   const handleLogout = async () => {
@@ -54,7 +55,6 @@ const Settings = () => {
     }
   };
 
-  // Definiciones de los nombres de las opciones con sus íconos correspondientes
   const screenOptions = {
     Información_Personal: {
       displayName: 'Información Personal',
@@ -76,7 +76,7 @@ const Settings = () => {
       iconName: 'sign-out',
       onPress: handleLogout,
     },
-    
+    // Se pueden agregar más elementos aquí
   };
 
   const screenOptions_Settings = {
@@ -92,21 +92,8 @@ const Settings = () => {
     },
   };
 
-  // Renderiza cada opción de configuración de manera dinámica
-  const renderProfileOptions = () => {
-    return Object.entries(screenOptions).map(([screenName, { displayName, iconName, onPress }]) => (
-      <TouchableOpacity key={screenName} style={styles.button} onPress={onPress}>
-        <View style={styles.option}>
-          <Icon name={iconName} size={iconSize} color={iconColor} style={styles.optionIcon} />
-          <Text style={styles.optionText}>{displayName}</Text>
-        </View>
-      </TouchableOpacity>
-    ));
-  };
-
-  // Renderiza cada opción de configuración de manera dinámica
-  const renderSettingsOptions = () => {
-    return Object.entries(screenOptions_Settings).map(([screenName, { displayName, iconName, onPress }]) => (
+  const renderOptions = (options) => {
+    return Object.entries(options).map(([screenName, { displayName, iconName, onPress }]) => (
       <TouchableOpacity key={screenName} style={styles.button} onPress={onPress}>
         <View style={styles.option}>
           <Icon name={iconName} size={iconSize} color={iconColor} style={styles.optionIcon} />
@@ -121,18 +108,26 @@ const Settings = () => {
       <Text style={styles.title0}>Settings</Text>
 
       <View style={styles.ViewProfImage}>
-        <Icon name="user-circle-o" size={100} color={iconColor} style={styles.ImageProfile} />
+        {userImageURL ? (
+          <Image 
+            source={{ uri: userImageURL }} 
+            style={styles.ImageProfile} 
+            resizeMode="cover"
+          />
+        ) : (
+          <Icon name="user-circle-o" size={100} color={iconColor} style={styles.ImageProfile} />
+        )}
         <Text style={styles.title}>{userName}</Text>
       </View>
 
       <View style={styles.ViewSettings}>
         <Text style={styles.title2}>Profile</Text>
-        {renderProfileOptions()}
+        {renderOptions(screenOptions)}
       </View>
 
       <View style={styles.ViewSupport}>
         <Text style={styles.title2}>Soporte</Text>
-        {renderSettingsOptions()}
+        {renderOptions(screenOptions_Settings)}
       </View>
     </View>
   );
@@ -155,16 +150,17 @@ const styles = StyleSheet.create({
     top: '4%',
     left: '10%',
     width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   ImageProfile: {
     width: 100,
     height: 100,
+    borderRadius: 50,
   },
   title: {
-    position: 'absolute',
     fontSize: 20,
-    marginTop: '10%',
-    left: '30%',
+    marginLeft: 20,
     fontWeight: 'bold',
   },
   ViewSettings: {
