@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { getFirestore, doc, setDoc, collection, addDoc } from 'firebase/firestore';
 import { useCard } from '../context/CardContext'; // Para obtener la tarjeta seleccionada
 import { getAuth } from 'firebase/auth';
@@ -66,35 +66,37 @@ const Retirar = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Retirar</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Retirar</Text>
 
-      {/* Campo de monto */}
-      <TextInput
-        style={styles.input}
-        placeholder={"Ingrese el monto"}
-        placeholderTextColor="#707070"
-        value={monto}
-        onChangeText={(text) => setMonto(text)}
-        keyboardType="numeric"
-      />
+        {/* Campo de monto */}
+        <TextInput
+          style={styles.input}
+          placeholder={"Ingrese el monto"}
+          placeholderTextColor="#707070"
+          value={monto}
+          onChangeText={(text) => setMonto(text)}
+          keyboardType="numeric"
+        />
 
-      {/* Campo de descripción */}
-      <TextInput
-        style={[styles.input, styles.textArea]}
-        placeholder={'Descripción breve (opcional)'}
-        placeholderTextColor="#707070"
-        value={descripcion}
-        onChangeText={(text) => setDescripcion(text)}
-        multiline
-        numberOfLines={3}
-      />
+        {/* Campo de descripción */}
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          placeholder={'Descripción breve (opcional)'}
+          placeholderTextColor="#707070"
+          value={descripcion}
+          onChangeText={(text) => setDescripcion(text)}
+          multiline
+          numberOfLines={3}
+        />
 
-      {/* Botón para realizar el retiro */}
-      <TouchableOpacity style={styles.button} onPress={handleRetiro} disabled={loading}>
-        <Text style={styles.buttonText}>{loading ? 'Procesando...' : 'Realizar Retiro'}</Text>
-      </TouchableOpacity>
-    </View>
+        {/* Botón para realizar el retiro */}
+        <TouchableOpacity style={styles.button} onPress={handleRetiro} disabled={loading}>
+          <Text style={styles.buttonText}>{loading ? 'Procesando...' : 'Realizar Retiro'}</Text>
+        </TouchableOpacity>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 

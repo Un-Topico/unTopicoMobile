@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import { getFirestore, doc, setDoc, collection, addDoc,query,where,getDocs } from 'firebase/firestore';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { getFirestore, doc, setDoc, collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 import { useRouter } from 'expo-router';
 import { getAuth } from 'firebase/auth';
 import { useCard } from '../context/CardContext'; // Importar el contexto de la tarjeta seleccionada
@@ -122,8 +122,8 @@ const Transferir = () => {
 
       // Guardar la transferencia en la colección 'transfers'
       const transferId = `transfer_${Date.now()}`;
-      const transferRef = doc(db, 'transfers', transferId); 
-      
+      const transferRef = doc(db, 'transfers', transferId);
+
       await setDoc(transferRef, {
         transfer_id: transferId,
         from_card_id: selectedCard.id,
@@ -146,7 +146,7 @@ const Transferir = () => {
       });
       await addDoc(collection(db, 'transactions'), {
 
-        transaction_id: `transaction_${Date.now()+1}`,
+        transaction_id: `transaction_${Date.now() + 1}`,
         card_id: recipientCardDoc.id,
         transaction_type: 'Transferencia',
         amount: parsedMonto,
@@ -192,63 +192,65 @@ const Transferir = () => {
   const isClabeDisabled = email !== ''; // Deshabilitar el campo de CLABE si se ingresa un correo
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Transferir</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Transferir</Text>
 
-      {/* Campo de correo electrónico */}
-      <TextInput
-        style={styles.input}
-        placeholder="Ingrese correo electrónico de destino"
-        placeholderTextColor="#707070"
-        value={email}
-        onChangeText={(text) => setEmail(text)}
-        editable={!isEmailDisabled} // Deshabilitar si se ha ingresado un CLABE
-        keyboardType="email-address"
-      />
+        {/* Campo de correo electrónico */}
+        <TextInput
+          style={styles.input}
+          placeholder="Ingrese correo electrónico de destino"
+          placeholderTextColor="#707070"
+          value={email}
+          onChangeText={(text) => setEmail(text)}
+          editable={!isEmailDisabled} // Deshabilitar si se ha ingresado un CLABE
+          keyboardType="email-address"
+        />
 
-      {/* Campo de CLABE */}
-      <TextInput
-        style={styles.input}
-        placeholder="Ingrese CLABE de destino"
-        placeholderTextColor="#707070"
-        value={clabe}
-        onChangeText={(text) => setClabe(text)}
-        editable={!isClabeDisabled} // Deshabilitar si se ha ingresado un correo
-        keyboardType="numeric"
-      />
+        {/* Campo de CLABE */}
+        <TextInput
+          style={styles.input}
+          placeholder="Ingrese CLABE de destino"
+          placeholderTextColor="#707070"
+          value={clabe}
+          onChangeText={(text) => setClabe(text)}
+          editable={!isClabeDisabled} // Deshabilitar si se ha ingresado un correo
+          keyboardType="numeric"
+        />
 
-      {/* Campo de monto */}
-      <TextInput
-        style={styles.input}
-        placeholder="Ingrese el monto"
-        placeholderTextColor="#707070"
-        value={monto}
-        onChangeText={(text) => setMonto(text)}
-        keyboardType="numeric"
-      />
+        {/* Campo de monto */}
+        <TextInput
+          style={styles.input}
+          placeholder="Ingrese el monto"
+          placeholderTextColor="#707070"
+          value={monto}
+          onChangeText={(text) => setMonto(text)}
+          keyboardType="numeric"
+        />
 
-      {/* Campo de descripción */}
-      <TextInput
-        style={[styles.input, styles.textArea]}
-        placeholder="Descripción breve (opcional)"
-        placeholderTextColor="#707070"
-        value={descripcion}
-        onChangeText={(text) => setDescripcion(text)}
-        multiline
-        numberOfLines={3}
-      />
+        {/* Campo de descripción */}
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          placeholder="Descripción breve (opcional)"
+          placeholderTextColor="#707070"
+          value={descripcion}
+          onChangeText={(text) => setDescripcion(text)}
+          multiline
+          numberOfLines={3}
+        />
 
-      {/* Componente de contactos */}
-      <Contacts currentUser={currentUser} onContactSelect={handleContactSelect} />
+        {/* Componente de contactos */}
+        <Contacts currentUser={currentUser} onContactSelect={handleContactSelect} />
 
-      {/* Botón para realizar la transferencia */}
-      <TouchableOpacity style={styles.button} onPress={handleTransferencia} disabled={loading}>
-        <Text style={styles.buttonText}>{loading ? <ActivityIndicator color="#fff" /> : 'Transferir'}</Text>
-      </TouchableOpacity>
+        {/* Botón para realizar la transferencia */}
+        <TouchableOpacity style={styles.button} onPress={handleTransferencia} disabled={loading}>
+          <Text style={styles.buttonText}>{loading ? <ActivityIndicator color="#fff" /> : 'Transferir'}</Text>
+        </TouchableOpacity>
 
-      {success && <Text style={styles.successText}>{success}</Text>}
-      {error && <Text style={styles.errorText}>{error}</Text>}
-    </View>
+        {success && <Text style={styles.successText}>{success}</Text>}
+        {error && <Text style={styles.errorText}>{error}</Text>}
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 

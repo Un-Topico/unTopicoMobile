@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { getFirestore, doc, setDoc, collection, addDoc } from 'firebase/firestore';
 import { useRouter } from 'expo-router';
 import { useCard } from '../context/CardContext'; // Para obtener la tarjeta seleccionada
@@ -63,35 +63,37 @@ const Depositar = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Depositar</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Depositar</Text>
 
-      {/* Campo de monto */}
-      <TextInput
-        style={styles.input}
-        placeholder="Ingrese el monto"
-        placeholderTextColor="#707070"
-        value={monto}
-        onChangeText={(text) => setMonto(text)}
-        keyboardType="numeric"
-      />
+        {/* Campo de monto */}
+        <TextInput
+          style={styles.input}
+          placeholder="Ingrese el monto"
+          placeholderTextColor="#707070"
+          value={monto}
+          onChangeText={(text) => setMonto(text)}
+          keyboardType="numeric"
+        />
 
-      {/* Campo de descripción */}
-      <TextInput
-        style={[styles.input, styles.textArea]}
-        placeholder="Descripción breve (opcional)"
-        placeholderTextColor="#707070"
-        value={descripcion}
-        onChangeText={(text) => setDescripcion(text)}
-        multiline
-        numberOfLines={3}
-      />
+        {/* Campo de descripción */}
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          placeholder="Descripción breve (opcional)"
+          placeholderTextColor="#707070"
+          value={descripcion}
+          onChangeText={(text) => setDescripcion(text)}
+          multiline
+          numberOfLines={3}
+        />
 
-      {/* Botón para realizar el depósito */}
-      <TouchableOpacity style={styles.button} onPress={handleDeposito} disabled={loading}>
-        <Text style={styles.buttonText}>{loading ? 'Procesando...' : 'Depositar'}</Text>
-      </TouchableOpacity>
-    </View>
+        {/* Botón para realizar el depósito */}
+        <TouchableOpacity style={styles.button} onPress={handleDeposito} disabled={loading}>
+          <Text style={styles.buttonText}>{loading ? 'Procesando...' : 'Depositar'}</Text>
+        </TouchableOpacity>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -137,3 +139,4 @@ const styles = StyleSheet.create({
 });
 
 export default Depositar;
+
