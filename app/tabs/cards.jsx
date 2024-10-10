@@ -33,7 +33,6 @@ const MisTarjetas = () => {
 
             <ScrollView>
                 <Card />
-                <Card />
             </ScrollView>
         </View>
     );

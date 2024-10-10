@@ -186,7 +186,7 @@ const Transferir = () => {
       {/* Campo de correo electrónico */}
       <TextInput
         style={styles.input}
-        placeholder="Ingrese su correo electrónico"
+        placeholder="Ingrese correo electrónico de destino"
         placeholderTextColor="#707070"
         value={email}
         onChangeText={(text) => setEmail(text)}
@@ -197,7 +197,7 @@ const Transferir = () => {
       {/* Campo de CLABE */}
       <TextInput
         style={styles.input}
-        placeholder="Ingrese su número CLABE"
+        placeholder="Ingrese CLABE de destino"
         placeholderTextColor="#707070"
         value={clabe}
         onChangeText={(text) => setClabe(text)}
