@@ -22,7 +22,7 @@ export default function logIn  ({
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        router.push('tabs/profile'); // Navega a la pantalla de inicio
+        router.push('tabs/home'); // Navega a la pantalla de inicio
       })
       .catch((error) => {
         const errorMessage = error.message;

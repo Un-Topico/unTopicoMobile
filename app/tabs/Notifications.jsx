@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Button, StyleSheet, FlatList, TouchableOpacity } from "react-native";
-import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
+import { getFirestore, onSnapshot, collection, query, where, getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { app } from "../utils/firebaseConfig";
 
@@ -10,30 +10,27 @@ export default function Notifications() {
   const auth = getAuth(app);
   const { currentUser } = auth;
 
+
   useEffect(() => {
-    const fetchNotifications = async () => {
-      if (!currentUser) return;
-
-      const db = getFirestore(app);
-      const notificationsQuery = query(
-        collection(db, "notifications"),
-        where("ownerId", "==", currentUser.uid)
-      );
-
-      const notificationsSnapshot = await getDocs(notificationsQuery);
-      console.log();
-      const notificationsData = notificationsSnapshot.docs.map((doc) => ({
+    if (!currentUser) return;
+  
+    const db = getFirestore(app);
+    const notificationsQuery = query(
+      collection(db, "notifications"),
+      where("ownerId", "==", currentUser.uid)
+    );
+  
+    const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
+      const notificationsData = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      console.log(notificationsData);
-
-
       setNotifications(notificationsData);
       setLoading(false);
-    };
-
-    fetchNotifications();
+    });
+  
+    // Cleanup function para evitar fugas de memoria
+    return () => unsubscribe();
   }, [currentUser]);
 
   if (loading) {
@@ -44,6 +41,17 @@ export default function Notifications() {
     );
   }
 
+  const markNotificationAsRead = async (notificationId) => {
+    const db = getFirestore(app);
+    const notificationRef = doc(db, "notifications", notificationId);
+    await updateDoc(notificationRef, { read: true });
+  };
+  
+  const handleNotificationPress = (notificationId) => {
+    markNotificationAsRead(notificationId);
+    // Aquí puedes agregar una navegación o acción adicional
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Notifications</Text>
@@ -52,7 +60,10 @@ export default function Notifications() {
           data={notifications}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <TouchableOpacity style={styles.notificationItem}>
+            <TouchableOpacity 
+              style={[styles.notificationItem, {backgroundColor: item.read ? "#e0e0e0" : "#f0f0f0"}]} 
+              activeOpacity={0.2}
+              onPress={() => handleNotificationPress(item.id)}>
               <Text style={styles.notificationText}>{item.message}</Text>
             </TouchableOpacity>
           )}

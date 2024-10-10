@@ -76,7 +76,7 @@ const Settings = () => {
       iconName: 'sign-out',
       onPress: handleLogout,
     },
-    // Se pueden agregar más elementos aquí
+    
   };
 
   const screenOptions_Settings = {
