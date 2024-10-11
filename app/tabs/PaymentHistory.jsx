@@ -78,7 +78,6 @@ const PaymentHistory = () => {
     if (transaction.transaction_type === "pagoServicio") {
       const { service_type, amount } = transaction;
       acc[service_type] = (acc[service_type] || 0) + amount;
-      console.log(acc)
     }
     return acc;
   }, {});
