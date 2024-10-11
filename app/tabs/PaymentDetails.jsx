@@ -1,19 +1,21 @@
 import React from 'react';
-import { View, Text, Button } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {View, StyleSheet } from 'react-native';
+import PaymentHistory from './PaymentHistory';
 
 const PaymentDetails = () => {
-    const navigation = useNavigation();
 
     return (
-        <View>
-            <Text>Detalles de Pago</Text>
-            <Button
-                title="Ver Historial de Pagos"
-                onPress={() => navigation.navigate('PaymentHistory')}
-            />
+        <View style={styles.container}>
+            <PaymentHistory/>
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: '#fff',
+    },
+});
 
 export default PaymentDetails;
