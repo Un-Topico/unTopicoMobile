@@ -23,6 +23,16 @@ const Index = () => {
       alert("Por favor selecciona una tarjeta.");
     }
   }
+  function handleGenerarQR() {
+    if (selectedCard) {
+      router.push({
+        pathname: './qrDepositForm',
+        params: { cardId: selectedCard.id },  // Pasa la tarjeta seleccionada a la pantalla de depósito
+      });
+    } else {
+      alert("Por favor selecciona una tarjeta.");
+    }
+  }
 
   function handleTransferir() {
     if (selectedCard) {
@@ -39,6 +49,17 @@ const Index = () => {
     if (selectedCard) {
       router.push({
         pathname: './withdraw',
+        params: { cardId: selectedCard.id },  // Pasa la tarjeta seleccionada a la pantalla de retiro
+      });
+    } else {
+      alert("Por favor selecciona una tarjeta.");
+    }
+   
+  }
+  function handleScanearQR() {
+    if (selectedCard) {
+      router.push({
+        pathname: './qrScanForm',
         params: { cardId: selectedCard.id },  // Pasa la tarjeta seleccionada a la pantalla de retiro
       });
     } else {
@@ -64,6 +85,15 @@ const Index = () => {
         <TouchableOpacity style={styles.button} onPress={handleDepositar}>
           <Icon name="download" size={40} color="#900" />
           <Text style={styles.buttonText}>Depositar</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={handleGenerarQR}>
+          <Icon name="download" size={40} color="#900" />
+          <Text style={styles.buttonText}>Generar QR</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleScanearQR}>
+          <Icon name="download" size={40} color="#900" />
+          <Text style={styles.buttonText}>Escanear QR</Text>
         </TouchableOpacity>
 
         {/* Botón de Transferir */}
