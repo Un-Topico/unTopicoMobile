@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, FlatList, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, ActivityIndicator, FlatList, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { fetchCards, fetchPaymentHistory } from '../utils/firebaseService';
 import { getAuth } from 'firebase/auth';  // Importamos la autenticación de Firebase
@@ -78,7 +78,6 @@ const PaymentHistory = () => {
     if (transaction.transaction_type === "pagoServicio") {
       const { service_type, amount } = transaction;
       acc[service_type] = (acc[service_type] || 0) + amount;
-      console.log(acc)
     }
     return acc;
   }, {});
@@ -134,10 +133,10 @@ const PaymentHistory = () => {
           <Picker.Item key={card.cardId} label={`${card.cardNumber} - Saldo: $${card.balance}`} value={card.cardId} />
         ))}
       </Picker>
-
+      
       {selectedCardId && currentTransactions.length > 0 && (
         <FlatList
-          data={currentTransactions.filter(item => item.category === "servicio")} // Filtrar por categoría de servicio
+          data={currentTransactions.filter(item => item.category === "servicio")} 
           keyExtractor={(item, index) => `transaction_${index}`}
           renderItem={({ item }) => (
             <View style={styles.transactionCard}>
@@ -152,6 +151,25 @@ const PaymentHistory = () => {
       {selectedCardId && currentTransactions.length === 0 && !loading && (
         <Text>No hay transacciones para esta tarjeta.</Text>
       )}
+
+      <View style={styles.buttonContainer}>
+        {/* Botones para cambiar entre las páginas */}
+        <TouchableOpacity
+          style={styles.buttonPage}
+          onPress={() => setCurrentPage(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          <Text style={styles.buttonText}>Página Anterior</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.buttonPage}
+          onPress={() => setCurrentPage(currentPage + 1)}
+          disabled={currentTransactions.length < transactionsPerPage}
+        >
+          <Text style={styles.buttonText}>Siguiente Página</Text>
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.swipCon}>
         <Swiper
@@ -322,11 +340,28 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   swipCon: {
-    height: width * 0.75,
+    height: width * 0.65,
   },
   graficaContainer: {
     padding: 1,
-  }
+  },
+  buttonPage: {
+    backgroundColor: '#007bff',
+    paddingVertical: 6,
+    paddingHorizontal: 30,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',               
+    fontSize: 14,               
+  },
+  buttonContainer: {
+    flexDirection: 'row',  
+    justifyContent: 'space-between', 
+    alignItems: 'center',   
+    marginVertical: 5,      
+  },
 });
 
 export default PaymentHistory;
