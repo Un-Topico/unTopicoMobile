@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import IconM from 'react-native-vector-icons/MaterialIcons'
 import UserCards from '../components/card';
 import { useCard } from '../context/CardContext';  // Importa el contexto
 
@@ -87,14 +88,6 @@ const Index = () => {
           <Text style={styles.buttonText}>Depositar</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={handleGenerarQR}>
-          <Icon name="download" size={40} color="#900" />
-          <Text style={styles.buttonText}>Generar QR</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleScanearQR}>
-          <Icon name="download" size={40} color="#900" />
-          <Text style={styles.buttonText}>Escanear QR</Text>
-        </TouchableOpacity>
 
         {/* Botón de Transferir */}
         <TouchableOpacity style={styles.button} onPress={handleTransferir}>
@@ -112,6 +105,15 @@ const Index = () => {
         <TouchableOpacity style={styles.button} onPress={handleReportes}>
           <Icon name="file-text-o" size={40} color="#900" />
           <Text style={styles.buttonText}>Reportes</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.button} onPress={handleGenerarQR}>
+          <Icon name="qrcode" size={40} color="#900" />
+          <Text style={styles.buttonText}>Deposito por QR</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleScanearQR}>
+          <IconM name="qr-code-scanner" size={40} color="#900" />
+          <Text style={styles.buttonText}>Escanear QR</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
