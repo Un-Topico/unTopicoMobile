@@ -136,6 +136,20 @@ export default function TabLayout() {
               headerShown: false,
             }}
           />
+           <Tabs.Screen
+            name="qrDepositForm"
+            options={{
+              href: null,
+              headerShown: false,
+            }}
+          />
+          <Tabs.Screen
+            name="qrScanForm"
+            options={{
+              href: null,
+              headerShown: false,
+            }}
+          />
         </Tabs>
       </CardProvider>
     </GestureHandlerRootView>

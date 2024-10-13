@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import IconM from 'react-native-vector-icons/MaterialIcons'
 import UserCards from '../components/card';
 import { useCard } from '../context/CardContext';  // Importa el contexto
 
@@ -17,6 +18,16 @@ const Index = () => {
     if (selectedCard) {
       router.push({
         pathname: './deposit',
+        params: { cardId: selectedCard.id },  // Pasa la tarjeta seleccionada a la pantalla de depósito
+      });
+    } else {
+      alert("Por favor selecciona una tarjeta.");
+    }
+  }
+  function handleGenerarQR() {
+    if (selectedCard) {
+      router.push({
+        pathname: './qrDepositForm',
         params: { cardId: selectedCard.id },  // Pasa la tarjeta seleccionada a la pantalla de depósito
       });
     } else {
@@ -44,6 +55,17 @@ const Index = () => {
     } else {
       alert("Por favor selecciona una tarjeta.");
     }
+   
+  }
+  function handleScanearQR() {
+    if (selectedCard) {
+      router.push({
+        pathname: './qrScanForm',
+        params: { cardId: selectedCard.id },  // Pasa la tarjeta seleccionada a la pantalla de retiro
+      });
+    } else {
+      alert("Por favor selecciona una tarjeta.");
+    }
   }
 
   function handleReportes() {
@@ -66,6 +88,7 @@ const Index = () => {
           <Text style={styles.buttonText}>Depositar</Text>
         </TouchableOpacity>
 
+
         {/* Botón de Transferir */}
         <TouchableOpacity style={styles.button} onPress={handleTransferir}>
           <Icon name="money" size={40} color="#900" />
@@ -82,6 +105,15 @@ const Index = () => {
         <TouchableOpacity style={styles.button} onPress={handleReportes}>
           <Icon name="file-text-o" size={40} color="#900" />
           <Text style={styles.buttonText}>Reportes</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.button} onPress={handleGenerarQR}>
+          <Icon name="qrcode" size={40} color="#900" />
+          <Text style={styles.buttonText}>Deposito por QR</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleScanearQR}>
+          <IconM name="qr-code-scanner" size={40} color="#900" />
+          <Text style={styles.buttonText}>Escanear QR</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
