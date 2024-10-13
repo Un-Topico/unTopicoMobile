@@ -1,78 +1,105 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Keyboard, TouchableWithoutFeedback } from 'react-native';
-import { getFirestore, doc, setDoc, collection, addDoc, query, where, getDocs } from 'firebase/firestore';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  Keyboard,
+  TouchableWithoutFeedback,
+} from 'react-native';
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs,
+} from 'firebase/firestore';
 import { useRouter } from 'expo-router';
-import { getAuth } from 'firebase/auth';
+import { getAuth, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 import { useCard } from '../context/CardContext'; // Importar el contexto de la tarjeta seleccionada
 import Contacts from '../components/contacts';
+import * as LocalAuthentication from 'expo-local-authentication';
+import Modal from 'react-native-modal';
+
 const Transferir = () => {
   const [email, setEmail] = useState('');
-  const [clabe, setClabe] = useState(''); // Estado para CLABE
+  const [clabe, setClabe] = useState('');
   const [monto, setMonto] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
 
-  const { selectedCard } = useCard(); // Obtener la tarjeta seleccionada
+  const { selectedCard } = useCard();
   const auth = getAuth();
   const { currentUser } = auth;
-  const db = getFirestore(); // Instancia de Firestore
+  const db = getFirestore();
   const router = useRouter();
 
   const getCardDocByEmail = async (email) => {
-    const accountsRef = collection(db, "accounts");
-    const q = query(accountsRef, where("email", "==", email));
+    const accountsRef = collection(db, 'accounts');
+    const q = query(accountsRef, where('email', '==', email));
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
-      throw new Error("No se encontró una cuenta asociada a este correo electrónico.");
+      throw new Error('No se encontró una cuenta asociada a este correo electrónico.');
     }
 
     const recipientAccount = querySnapshot.docs[0].data();
     const recipientOwnerId = recipientAccount.ownerId;
 
-    const cardsRef = collection(db, "cards");
-    const cardQuery = query(cardsRef, where("ownerId", "==", recipientOwnerId));
+    const cardsRef = collection(db, 'cards');
+    const cardQuery = query(cardsRef, where('ownerId', '==', recipientOwnerId));
     const cardSnapshot = await getDocs(cardQuery);
 
     if (cardSnapshot.empty) {
-      throw new Error("El destinatario no tiene una tarjeta asociada.");
+      throw new Error('El destinatario no tiene una tarjeta asociada.');
     }
 
-    return cardSnapshot.docs[0]; // Retorna el primer documento encontrado
+    return cardSnapshot.docs[0];
   };
 
   const getCardDocByClabe = async (clabe) => {
-    const cardsRef = collection(db, "cards");
-    const q = query(cardsRef, where("clabeNumber", "==", clabe));
+    const cardsRef = collection(db, 'cards');
+    const q = query(cardsRef, where('clabeNumber', '==', clabe));
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
-      throw new Error("No se encontró una tarjeta asociada a este número CLABE.");
+      throw new Error('No se encontró una tarjeta asociada a este número CLABE.');
     }
 
-    return querySnapshot.docs[0]; // Retorna el primer documento encontrado
+    return querySnapshot.docs[0];
   };
 
   const sendMessage = async (phoneNumber, amount) => {
     try {
-      const response = await fetch("https://faas-sfo3-7872a1dd.doserverless.co/api/v1/web/fn-ab5e80b6-8190-4404-9b75-ead553014c5a/twilio-package/send-message", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          to: phoneNumber,
-          body: `Has recibido una transferencia de ${amount} MXN.`,
-        }),
-      });
+      const response = await fetch(
+        'https://faas-sfo3-7872a1dd.doserverless.co/api/v1/web/fn-ab5e80b6-8190-4404-9b75-ead553014c5a/twilio-package/send-message',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            to: phoneNumber,
+            body: `Has recibido una transferencia de ${amount} MXN.`,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error("Error en la respuesta de la API");
+        throw new Error('Error en la respuesta de la API');
       }
     } catch (error) {
-      console.error("Error al enviar el mensaje:", error);
+      console.error('Error al enviar el mensaje:', error);
     }
   };
 
@@ -88,10 +115,30 @@ const Transferir = () => {
     }
 
     if (!email && !clabe) {
-      Alert.alert('Error', 'Por favor ingresa un correo electrónico o un número CLABE del destinatario.');
+      Alert.alert(
+        'Error',
+        'Por favor ingresa un correo electrónico o un número CLABE del destinatario.'
+      );
       return;
     }
 
+    // Intentar autenticación biométrica
+    const biometricResult = await LocalAuthentication.authenticateAsync({
+      promptMessage: 'Autenticación requerida',
+      fallbackLabel: 'Usar contraseña',
+    });
+
+    if (biometricResult.success) {
+      // Autenticación biométrica exitosa, proceder con la transferencia
+      proceedWithTransfer();
+    } else {
+      // La autenticación biométrica falló o el usuario canceló
+      // Solicitar contraseña
+      promptForPassword();
+    }
+  };
+
+  const proceedWithTransfer = async () => {
     setLoading(true);
 
     try {
@@ -106,7 +153,7 @@ const Transferir = () => {
 
       const newBalance = selectedCard.balance - parsedMonto;
       if (newBalance < 0) {
-        throw new Error("No tienes suficiente saldo para realizar esta transferencia.");
+        throw new Error('No tienes suficiente saldo para realizar esta transferencia.');
       }
 
       const recipientOwnerId = recipientCardDoc.data().ownerId;
@@ -130,30 +177,29 @@ const Transferir = () => {
         to_card_id: recipientCardDoc.id,
         amount: parsedMonto,
         transfer_date: new Date(),
-        description: descripcion || "Sin descripción",
+        description: descripcion || 'Sin descripción',
       });
 
       // Guardar la transacción en la colección 'transactions'
       await addDoc(collection(db, 'transactions'), {
-
         transaction_id: `transaction_${Date.now()}`,
         card_id: selectedCard.id,
         transaction_type: 'Transferencia',
         amount: parsedMonto,
         transaction_date: new Date(),
-        description: descripcion || "Sin descripción",
+        description: descripcion || 'Sin descripción',
         status: 'sent',
       });
       await addDoc(collection(db, 'transactions'), {
-
         transaction_id: `transaction_${Date.now() + 1}`,
         card_id: recipientCardDoc.id,
         transaction_type: 'Transferencia',
         amount: parsedMonto,
         transaction_date: new Date(),
-        description: descripcion || "Sin descripción",
+        description: descripcion || 'Sin descripción',
         status: 'received',
       });
+
       // Crear la notificación para el destinatario
       await addDoc(collection(db, 'notifications'), {
         notificationId: `notification_${Date.now()}`,
@@ -165,7 +211,7 @@ const Transferir = () => {
         timestamp: new Date(),
       });
 
-      // Obtener el número de teléfono del destinatario y enviar el mensaje
+      // Enviar mensaje al destinatario si tiene número de teléfono
       const recipientPhoneNumber = recipientCardDoc.data().phoneNumber;
       if (recipientPhoneNumber) {
         await sendMessage(recipientPhoneNumber, parsedMonto);
@@ -173,7 +219,7 @@ const Transferir = () => {
 
       setSuccess('La transferencia se ha realizado con éxito.');
       setEmail('');
-      setClabe(''); // Limpiar el campo de CLABE
+      setClabe('');
       setMonto('');
       setDescripcion('');
     } catch (error) {
@@ -183,13 +229,31 @@ const Transferir = () => {
     }
   };
 
-  const handleContactSelect = (selectedEmail) => {
-    setEmail(selectedEmail); // Asigna el correo seleccionado desde los contactos
-    setClabe(''); // Limpiar el campo de CLABE si selecciona un correo
+  const promptForPassword = () => {
+    setIsPasswordModalVisible(true);
   };
 
-  const isEmailDisabled = clabe !== ''; // Deshabilitar el campo de correo si se ingresa un CLABE
-  const isClabeDisabled = email !== ''; // Deshabilitar el campo de CLABE si se ingresa un correo
+  const handlePasswordSubmit = async () => {
+    try {
+      const credential = EmailAuthProvider.credential(currentUser.email, passwordInput);
+      await reauthenticateWithCredential(currentUser, credential);
+
+      setIsPasswordModalVisible(false);
+      setPasswordInput('');
+
+      proceedWithTransfer();
+    } catch (error) {
+      Alert.alert('Error', 'Contraseña incorrecta. Intenta de nuevo.');
+    }
+  };
+
+  const handleContactSelect = (selectedEmail) => {
+    setEmail(selectedEmail);
+    setClabe('');
+  };
+
+  const isEmailDisabled = clabe !== '';
+  const isClabeDisabled = email !== '';
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -203,7 +267,7 @@ const Transferir = () => {
           placeholderTextColor="#707070"
           value={email}
           onChangeText={(text) => setEmail(text)}
-          editable={!isEmailDisabled} // Deshabilitar si se ha ingresado un CLABE
+          editable={!isEmailDisabled}
           keyboardType="email-address"
         />
 
@@ -214,7 +278,7 @@ const Transferir = () => {
           placeholderTextColor="#707070"
           value={clabe}
           onChangeText={(text) => setClabe(text)}
-          editable={!isClabeDisabled} // Deshabilitar si se ha ingresado un correo
+          editable={!isClabeDisabled}
           keyboardType="numeric"
         />
 
@@ -244,11 +308,39 @@ const Transferir = () => {
 
         {/* Botón para realizar la transferencia */}
         <TouchableOpacity style={styles.button} onPress={handleTransferencia} disabled={loading}>
-          <Text style={styles.buttonText}>{loading ? <ActivityIndicator color="#fff" /> : 'Transferir'}</Text>
+          <Text style={styles.buttonText}>
+            {loading ? <ActivityIndicator color="#fff" /> : 'Transferir'}
+          </Text>
         </TouchableOpacity>
 
         {success && <Text style={styles.successText}>{success}</Text>}
         {error && <Text style={styles.errorText}>{error}</Text>}
+
+        {/* Modal para ingresar la contraseña */}
+        <Modal isVisible={isPasswordModalVisible}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Ingresa tu contraseña</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Contraseña"
+              placeholderTextColor="#707070"
+              secureTextEntry
+              value={passwordInput}
+              onChangeText={(text) => setPasswordInput(text)}
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.modalButton} onPress={handlePasswordSubmit}>
+                <Text style={styles.modalButtonText}>Aceptar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setIsPasswordModalVisible(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -302,6 +394,42 @@ const styles = StyleSheet.create({
     color: 'red',
     marginTop: 10,
     textAlign: 'center',
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  modalInput: {
+    height: 50,
+    borderColor: '#707070',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 15,
+    paddingHorizontal: 10,
+    fontSize: 16,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  modalButton: {
+    backgroundColor: '#4FD290',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  cancelButton: {
+    backgroundColor: '#cccccc',
+  },
+  modalButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
   },
 });
 

@@ -1,33 +1,152 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, TextInput, StyleSheet, Image, KeyboardAvoidingView, ScrollView, Platform, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  TextInput,
+  StyleSheet,
+  Image,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
+  Alert,
+  Switch,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from './utils/firebaseConfig'; // Importa la configuración de Firebase
+import { auth } from './utils/firebaseConfig'; // Asegúrate de que la ruta sea correcta
+import * as LocalAuthentication from 'expo-local-authentication';
+import * as SecureStore from 'expo-secure-store';
 
-export default function logIn  ({ 
-  appName= "Untopico", 
-  logoSource = require('../assets/images/logo.png'), 
+export default function LogIn({
+  appName = 'Untopico',
+  logoSource = require('../assets/images/logo.png'),
   backgroundSource = require('../assets/images/backgroundImage.jpg'),
-  title2 = "Iniciar Sesión",
-  question1 = "Aún no tienes cuenta?",
-  answer1 = "Crea tu cuenta",
+  title2 = 'Iniciar Sesión',
+  question1 = '¿Aún no tienes cuenta?',
+  answer1 = 'Crea tu cuenta',
   googlesource = require('../assets/images/Google.png'), // Imagen de Google
-  forgotText = "¿Olvidaste tu contraseña?",
+  forgotText = '¿Olvidaste tu contraseña?',
 }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isBiometricSupported, setIsBiometricSupported] = useState(false);
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
   const router = useRouter();
 
-  const handleLogIn = () => {
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        router.push('tabs/home'); // Navega a la pantalla de inicio
-      })
-      .catch((error) => {
-        const errorMessage = error.message;
-        Alert.alert('Error', errorMessage); // Muestra un mensaje de error
+  useEffect(() => {
+    (async () => {
+      // Verificar si el dispositivo soporta autenticación biométrica
+      const compatible = await LocalAuthentication.hasHardwareAsync();
+      const enrolled = await LocalAuthentication.isEnrolledAsync();
+      setIsBiometricSupported(compatible && enrolled);
+
+      // Verificar si el usuario ha habilitado la autenticación biométrica
+      const biometricPreference = await SecureStore.getItemAsync('biometricEnabled');
+      if (biometricPreference === 'true') {
+        setBiometricEnabled(true);
+        handleBiometricLogin();
+      }
+    })();
+  }, []);
+
+  const handleBiometricLogin = async () => {
+    try {
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Autenticación Biométrica',
+        fallbackLabel: 'Usar contraseña',
       });
+
+      if (result.success) {
+        // Recuperar las credenciales almacenadas
+        const storedEmail = await SecureStore.getItemAsync('userEmail');
+        const storedPassword = await SecureStore.getItemAsync('userPassword');
+        if (storedEmail && storedPassword) {
+          // Actualizar los campos del formulario
+          setEmail(storedEmail);
+          setPassword(storedPassword);
+
+          // Iniciar sesión con Firebase
+          signInWithEmailAndPassword(auth, storedEmail, storedPassword)
+            .then((userCredential) => {
+              router.push('tabs/home'); // Navega a la pantalla de inicio
+            })
+            .catch((error) => {
+              const errorMessage = error.message;
+              Alert.alert('Error', errorMessage); // Muestra un mensaje de error
+            });
+        }
+      } else {
+        Alert.alert('Autenticación fallida', 'No se pudo autenticar usando biometría.');
+      }
+    } catch (error) {
+      console.log('Error en la autenticación biométrica:', error);
+    }
+  };
+
+  const handleLogIn = async () => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // Si la biometría está habilitada, almacenamos las credenciales
+      if (isBiometricSupported && biometricEnabled) {
+        // Almacenar las credenciales de forma segura
+        await SecureStore.setItemAsync('userEmail', email);
+        await SecureStore.setItemAsync('userPassword', password);
+        await SecureStore.setItemAsync('biometricEnabled', 'true');
+      } else {
+        // Si la biometría no está habilitada, eliminar credenciales almacenadas
+        await SecureStore.deleteItemAsync('userEmail');
+        await SecureStore.deleteItemAsync('userPassword');
+        await SecureStore.deleteItemAsync('biometricEnabled');
+      }
+
+      // Navegamos a la pantalla principal después de un breve retraso o cuando el usuario decida
+      setTimeout(() => {
+        router.push('tabs/home');
+      }, 2000); // Puedes ajustar el tiempo o implementar una mejor lógica
+    } catch (error) {
+      const errorMessage = error.message;
+      Alert.alert('Error', errorMessage); // Muestra un mensaje de error
+    }
+  };
+
+  const toggleBiometric = async () => {
+    if (!biometricEnabled) {
+      // El usuario está intentando habilitar la autenticación biométrica
+
+      // Verificar que el email y la contraseña estén ingresados
+      if (!email || !password) {
+        Alert.alert('Error', 'Por favor, ingresa tu email y contraseña antes de habilitar la autenticación biométrica.');
+        return;
+      }
+
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Confirma tu identidad para habilitar la autenticación biométrica',
+        fallbackLabel: 'Usar contraseña',
+      });
+
+      if (result.success) {
+        setBiometricEnabled(true);
+        await SecureStore.setItemAsync('biometricEnabled', 'true');
+
+        // Almacenar las credenciales de forma segura
+        await SecureStore.setItemAsync('userEmail', email);
+        await SecureStore.setItemAsync('userPassword', password);
+        Alert.alert('Éxito', 'La autenticación biométrica ha sido habilitada.');
+      } else {
+        Alert.alert('Autenticación fallida', 'No se pudo habilitar la autenticación biométrica.');
+        // Mantener el interruptor en false
+        setBiometricEnabled(false);
+      }
+    } else {
+      // El usuario está deshabilitando la autenticación biométrica
+      setBiometricEnabled(false);
+      // Eliminar las credenciales almacenadas
+      await SecureStore.deleteItemAsync('userEmail');
+      await SecureStore.deleteItemAsync('userPassword');
+      await SecureStore.setItemAsync('biometricEnabled', 'false');
+      Alert.alert('Deshabilitado', 'La autenticación biométrica ha sido deshabilitada.');
+    }
   };
 
   const handleLink = () => {
@@ -57,15 +176,17 @@ export default function logIn  ({
             <TextInput
               style={styles.TextInput}
               placeholder="Email"
-              placeholderTextColor='#707070'
+              placeholderTextColor="#707070"
               maxLength={50}
               onChangeText={(text) => setEmail(text)}
               value={email}
+              keyboardType="email-address"
+              autoCapitalize="none"
             />
             <TextInput
               style={styles.TextInput}
               placeholder="Password"
-              placeholderTextColor='#707070'
+              placeholderTextColor="#707070"
               maxLength={16}
               secureTextEntry={true}
               onChangeText={(text) => setPassword(text)}
@@ -77,6 +198,14 @@ export default function logIn  ({
                 {forgotText}
               </Text>
             </View>
+
+            {/* Opción para habilitar autenticación biométrica */}
+            {isBiometricSupported && (
+              <View style={styles.biometricContainer}>
+                <Text style={styles.biometricText}>Habilitar autenticación biométrica</Text>
+                <Switch value={biometricEnabled} onValueChange={toggleBiometric} />
+              </View>
+            )}
 
             <View style={styles.ViewButton}>
               <TouchableOpacity style={styles.button} onPress={handleLogIn}>
@@ -111,14 +240,15 @@ export default function logIn  ({
       </ScrollView>
     </KeyboardAvoidingView>
   );
-};
+}
 
+// Estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    position: 'relative'
+    position: 'relative',
   },
   text1: {
     fontSize: 16,
@@ -179,6 +309,7 @@ const styles = StyleSheet.create({
   },
   ViewForgotPassword: {
     alignItems: 'center',
+    marginBottom: 10,
   },
   forgotPasswordText: {
     fontSize: 16,
@@ -190,7 +321,7 @@ const styles = StyleSheet.create({
   },
   ViewButton: {
     alignItems: 'center',
-    width: '100%'
+    width: '100%',
   },
   BackImage: {
     position: 'absolute',
@@ -202,10 +333,9 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  // Estilos adicionales desde loginAntiguo
   dividerContainer: {
-    flexDirection: 'row', 
-    alignItems: 'center', 
+    flexDirection: 'row',
+    alignItems: 'center',
     marginVertical: 20,
   },
   line: {
@@ -237,5 +367,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#000',
     fontSize: 16,
+  },
+  biometricContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    width: '100%',
+  },
+  biometricText: {
+    flex: 1,
+    fontSize: 16,
+    color: 'black',
   },
 });
