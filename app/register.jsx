@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Text, TextInput, StyleSheet, Image, KeyboardAvoidingView, ScrollView, Platform, Alert } from 'react-native';
-import {  useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { createUserWithEmailAndPassword } from 'firebase/auth'; // Importa la función para registrar usuarios
 import { auth } from './utils/firebaseConfig'; // Importa la configuración de Firebase
+import CustomCheckbox from './components/checkbox';
+import TermsAndConditionsModal from './components/termsAndConditions';
 
-export default function Register({ 
-  appName = "Untopico", 
-  logoSource = require('../assets/images/logo.png'), 
-  backgroundSource = require('../assets/images/backgroundImage.jpg'), 
+export default function Register({
+  appName = "Untopico",
+  logoSource = require('../assets/images/logo.png'),
+  backgroundSource = require('../assets/images/backgroundImage.jpg'),
   googlesource = require('../assets/images/Google.png'),
 
-  title2 = "Crea tu cuenta", 
-  question1 = "Ya tienes cuenta", 
-  answer1 = "Iniciar Sesión" 
+  title2 = "Crea tu cuenta",
+  question1 = "Ya tienes cuenta",
+  answer1 = "Iniciar Sesión"
 }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,6 +35,24 @@ export default function Register({
   function handleLogIn() {
     router.push('/login'); // Navega a la pantalla de inicio de sesión
   }
+
+
+  // NECESARIO PARA CHECKBOX
+  const [isChecked, setIsChecked] = useState(false);
+
+  // NECESARIO PARA Modal de Términos y Condiciones
+  const [modalVisible, setModalVisible] = useState(false);
+  const openModal = () => {
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
+  const handleAcceptTerms = () => {
+    setModalVisible(false);
+  };
 
   return (
     <KeyboardAvoidingView
@@ -68,20 +88,54 @@ export default function Register({
               value={password}
             />
 
-            <View style={styles.ViewForgotPassword}>
-              <Text style={styles.forgotPasswordText}>
-                Forgot password?
-              </Text>
+            {/*
+                Checkbox (términos y condiciones)
+            */}
+
+            <View style={styles.container}>
+              <View style={styles.Checkbox_container}>
+                <CustomCheckbox isCheckedInitially={isChecked} onChange={setIsChecked} />
+                <Text style={[{ marginRight: 10 }, styles.text1]}>
+                  Acepto los{" "}
+                  <Text
+                    style={styles.link}
+                    onPress={openModal} // Muestra el modal al presionar
+                  >
+                    Términos y Condiciones
+                  </Text>
+                </Text>
+              </View>
             </View>
 
+            {/*
+                Modal de Términos y Condiciones
+            */}
+
+            <TermsAndConditionsModal
+              modalVisible={modalVisible}
+              closeModal={closeModal}
+              onAccept={handleAcceptTerms}
+            />
+
+            {/*
+                Botón de Crear
+            */}
+
             <View style={styles.ViewButton}>
-              <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  !isChecked && styles.buttonDisabled, // Aplica un estilo distinto si está deshabilitado
+                ]}
+                onPress={handleSignUp}
+                disabled={!isChecked} // Deshabilita el botón si no se ha aceptado el checkbox
+              >
                 <Text style={styles.buttonText}>Crear</Text>
               </TouchableOpacity>
             </View>
 
-            <View>
-              <Text style={styles.text1}>
+            <View >
+              <Text style={[{ marginTop: 20 }, styles.text1]}>
                 {question1}{' '}
                 <Text style={styles.linkText} onPress={handleLogIn}>
                   {answer1}
@@ -119,7 +173,6 @@ const styles = StyleSheet.create({
   text1: {
     fontSize: 16,
     textAlign: 'center',
-    marginTop: 20,
   },
   title: {
     fontSize: 45,
@@ -157,13 +210,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     fontSize: 16,
   },
-  ViewForgotPassword: {
-    alignItems: 'center',
-  },
-  forgotPasswordText: {
-    fontSize: 16,
-    textDecorationLine: 'underline',
-  },
   button: {
     backgroundColor: '#4FD290',
     padding: 10,
@@ -175,14 +221,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  buttonDisabled: {
+    backgroundColor: '#ccc', // Cambia el color del botón cuando está deshabilitado
+  },
   buttonText: {
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
   },
+  Checkbox_container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  link: {
+    color: '#007BFF', // Color azul para simular un enlace
+    textDecorationLine: 'underline', // Subrayar el texto
+  },
   dividerContainer: {
-    flexDirection: 'row', 
-    alignItems: 'center', 
+    flexDirection: 'row',
+    alignItems: 'center',
     marginVertical: 20,
   },
   line: {
