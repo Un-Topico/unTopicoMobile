@@ -49,7 +49,7 @@ const Settings = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      router.push("/login");
+      router.navigate("/");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
     }

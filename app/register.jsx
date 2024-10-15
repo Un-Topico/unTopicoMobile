@@ -33,7 +33,7 @@ export default function Register({
   }
 
   function handleLogIn() {
-    router.push('/login'); // Navega a la pantalla de inicio de sesión
+    router.replace('/login'); // Navega a la pantalla de inicio de sesión
   }
 
 

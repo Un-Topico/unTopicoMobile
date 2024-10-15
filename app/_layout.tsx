@@ -22,28 +22,17 @@ export default function Layout() {
     if (!loading) {
       // Navegación controlada después de que el estado del usuario haya sido cargado
       if (user) {
-        router.replace('./tabs/home');
+        router.navigate('./home');
       } 
     }
   }, [user, loading, router]);
-
-  
 
   return (
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="register" options={{ headerShown: false }} />
-
-      <Stack.Screen name="home" options={{ headerShown: false }} />
-      <Stack.Screen name="perfil" options={{ headerShown: false }} />
-      <Stack.Screen name="accountSetup" options={{ headerShown: false }} />
-
-      <Stack.Screen name="depositar" options={{ headerShown: false }} />
-      <Stack.Screen name="retirar" options={{ headerShown: false }} />
-      <Stack.Screen name="transferir" options={{ headerShown: false }} />
-      <Stack.Screen name="reportes" options={{ headerShown: false }} />
-
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
     </Stack>
   );
 }

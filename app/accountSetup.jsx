@@ -43,7 +43,7 @@ export default function AccountSetup() {
     } else {
       const checkUser = async (currentUser) => {
         const check = await checkUserAccount(currentUser);
-        if (check) router.replace("/profile");
+        if (check) router.replace("/home");
       };
       checkUser(user);
 
@@ -63,9 +63,23 @@ export default function AccountSetup() {
     }
   }, [auth.currentUser, router, db]);
 
+
+  // QUITÉ ESTA PARTE PORQUE TARDABA MUCHO EN APARECER EL BOTÓN DE CREAR CUENTA
+  //    Y MEJOR LO CAMBIÉ POR REDIRIGIR A HOME
+
+  /*
   useEffect(() => {
     setIsButtonDisabled(!(isCardSaved && name));
   }, [isCardSaved, name]);
+
+  */
+
+  useEffect(() => {
+    // Redirigir al usuario a /home si la tarjeta ha sido guardada
+    if (isCardSaved) {
+      router.replace("/home");
+    }
+  }, [isCardSaved, router]);
 
   const createAccount = async (userUid, userEmail) => {
     try {
@@ -86,7 +100,8 @@ export default function AccountSetup() {
 
       await setDoc(accountDocRef, accountData);
 
-      router.push("./tabs/profile");
+      router.navigate("/home");
+      console.log('se pasó por aquí router.navigate /home');
     } catch (error) {
       console.error("Error al crear la cuenta:", error);
       Alert.alert("Error", "No se pudo crear la cuenta. Por favor, intente de nuevo.");
