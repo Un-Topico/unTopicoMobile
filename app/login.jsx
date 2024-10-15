@@ -69,7 +69,7 @@ export default function LogIn({
           // Iniciar sesión con Firebase
           signInWithEmailAndPassword(auth, storedEmail, storedPassword)
             .then((userCredential) => {
-              router.push('tabs/home'); // Navega a la pantalla de inicio
+              router.push('/home'); // Navega a la pantalla de inicio
             })
             .catch((error) => {
               const errorMessage = error.message;
@@ -102,7 +102,7 @@ export default function LogIn({
 
       // Navegamos a la pantalla principal después de un breve retraso o cuando el usuario decida
       setTimeout(() => {
-        router.push('tabs/home');
+        router.push('/home');
       }, 2000); // Puedes ajustar el tiempo o implementar una mejor lógica
     } catch (error) {
       const errorMessage = error.message;
@@ -150,7 +150,7 @@ export default function LogIn({
   };
 
   const handleLink = () => {
-    router.push('register'); // Navega a la pantalla de registro
+    router.replace('register'); // Navega a la pantalla de registro
   };
 
   const handleForgotLink = () => {
