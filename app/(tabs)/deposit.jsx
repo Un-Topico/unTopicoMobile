@@ -14,8 +14,10 @@ import { useCard } from '../context/CardContext';
 import { getAuth, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 import * as LocalAuthentication from 'expo-local-authentication';
 import Modal from 'react-native-modal';
-
+import Card1 from '../components/card1';
 const Depositar = () => {
+
+
   const [monto, setMonto] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [loading, setLoading] = useState(false);
@@ -107,6 +109,7 @@ const Depositar = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
+        <Card1 datos={selectedCard}/>
         <Text style={styles.title}>Depositar</Text>
 
         <TextInput
