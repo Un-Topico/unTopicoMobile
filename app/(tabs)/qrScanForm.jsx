@@ -6,7 +6,7 @@ import { getFirestore, doc, getDoc, updateDoc, collection, addDoc } from 'fireba
 import { getAuth } from 'firebase/auth';
 import { useCard } from '../context/CardContext'; // Importar useCard para obtener selectedCard
 
-export default function QrScanForm() {
+export default function qrScanForm() {
   const [hasPermission, setHasPermission] = useState(null); // Estado para permisos de cámara
   const [scanned, setScanned] = useState(false); // Estado para controlar si ya se escaneó
   const [error, setError] = useState(null);

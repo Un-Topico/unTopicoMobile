@@ -27,7 +27,7 @@ import Contacts from '../components/contacts';
 import * as LocalAuthentication from 'expo-local-authentication';
 import Modal from 'react-native-modal';
 
-const Transferir = () => {
+const transfer = () => {
   const [email, setEmail] = useState('');
   const [clabe, setClabe] = useState('');
   const [monto, setMonto] = useState('');
@@ -433,4 +433,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Transferir;
+export default transfer;

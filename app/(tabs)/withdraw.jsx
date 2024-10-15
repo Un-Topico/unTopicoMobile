@@ -15,7 +15,7 @@ import { getAuth, reauthenticateWithCredential, EmailAuthProvider } from 'fireba
 import * as LocalAuthentication from 'expo-local-authentication';
 import Modal from 'react-native-modal';
 
-const Retirar = () => {
+const withdraw = () => {
   const [monto, setMonto] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [loading, setLoading] = useState(false);
@@ -256,4 +256,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Retirar;
+export default withdraw;

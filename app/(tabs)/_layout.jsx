@@ -13,7 +13,7 @@ export default function TabLayout() {
       {/* Envuelve las Tabs con el proveedor del contexto */}
       <CardProvider>
         <Tabs
-          initialRouteName="profile" // Define la pantalla inicial
+          initialRouteName="home" // Define la pantalla inicial
           screenOptions={{
             tabBarActiveTintColor: 'blue',
             tabBarLabelStyle: {
