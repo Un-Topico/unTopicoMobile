@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   acceptButton: {
-    backgroundColor: '#4630EB',
+    backgroundColor: '#F45E5D',
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 5,
