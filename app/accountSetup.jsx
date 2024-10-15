@@ -63,24 +63,6 @@ export default function AccountSetup() {
     }
   }, [auth.currentUser, router, db]);
 
-
-  // QUITÉ ESTA PARTE PORQUE TARDABA MUCHO EN APARECER EL BOTÓN DE CREAR CUENTA
-  //    Y MEJOR LO CAMBIÉ POR REDIRIGIR A HOME
-
-  /*
-  useEffect(() => {
-    setIsButtonDisabled(!(isCardSaved && name));
-  }, [isCardSaved, name]);
-
-  */
-
-  useEffect(() => {
-    // Redirigir al usuario a /home si la tarjeta ha sido guardada
-    if (isCardSaved) {
-      router.replace("/home");
-    }
-  }, [isCardSaved, router]);
-
   const createAccount = async (userUid, userEmail) => {
     try {
       const accountId = `account_${userUid}`;
@@ -88,7 +70,7 @@ export default function AccountSetup() {
         accountId,
         accountType,
         name,
-        balance: 100,
+        balance: 0,
         ownerId: userUid,
         email: userEmail,
         createdAt: new Date(),
@@ -101,7 +83,6 @@ export default function AccountSetup() {
       await setDoc(accountDocRef, accountData);
 
       router.navigate("/home");
-      console.log('se pasó por aquí router.navigate /home');
     } catch (error) {
       console.error("Error al crear la cuenta:", error);
       Alert.alert("Error", "No se pudo crear la cuenta. Por favor, intente de nuevo.");
@@ -116,6 +97,13 @@ export default function AccountSetup() {
     }
     await createAccount(user.uid, user.email);
   };
+
+  useEffect(() => {
+    // Redirigir al usuario a /home si la tarjeta ha sido guardada
+    if (isCardSaved) {
+      handleSubmit();
+    }
+  }, [isCardSaved, router]);
 
   return (
     <KeyboardAvoidingView 
@@ -150,15 +138,6 @@ export default function AccountSetup() {
         ) : (
           <Text style={styles.success}>Tarjeta previamente registrada</Text>
         )}
-        <TouchableOpacity
-          style={[styles.button, isButtonDisabled && styles.buttonDisabled]}
-          onPress={handleSubmit}
-          disabled={isButtonDisabled}
-          accessibilityLabel="Crear cuenta"
-          accessibilityState={{ disabled: isButtonDisabled }}
-        >
-          <Text style={styles.buttonText}>Crear Cuenta</Text>
-        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -196,21 +175,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-  },
-  button: {
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
-    padding: 15,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  buttonDisabled: {
-    backgroundColor: '#A0A0A0',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
   },
   success: {
     color: '#4CAF50',
