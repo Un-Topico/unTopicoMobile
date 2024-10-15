@@ -6,7 +6,7 @@ import { getAuth } from "firebase/auth";
 import { app } from "../utils/firebaseConfig";
 import { UserProfile } from "../components/userProfile";
 
-export default function PersonalInfo() {
+export default function personal_Info() {
   const auth = getAuth(app);
   const { currentUser } = auth;
   const [loading, setLoading] = useState(true);

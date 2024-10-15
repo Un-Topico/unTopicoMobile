@@ -17,7 +17,7 @@ const Index = () => {
   function handleDepositar() {
     if (selectedCard) {
       router.push({
-        pathname: './deposit',
+        pathname: '/deposit',
         params: { cardId: selectedCard.id },  // Pasa la tarjeta seleccionada a la pantalla de depósito
       });
     } else {
@@ -27,7 +27,7 @@ const Index = () => {
   function handleGenerarQR() {
     if (selectedCard) {
       router.push({
-        pathname: './qrDepositForm',
+        pathname: '/qrDepositForm',
         params: { cardId: selectedCard.id },  // Pasa la tarjeta seleccionada a la pantalla de depósito
       });
     } else {
@@ -38,7 +38,7 @@ const Index = () => {
   function handleTransferir() {
     if (selectedCard) {
       router.push({
-        pathname: './transfer',
+        pathname: '/transfer',
         params: { cardId: selectedCard.id },  // Pasa la tarjeta seleccionada a la pantalla de transferencia
       });
     } else {
@@ -49,7 +49,7 @@ const Index = () => {
   function handleRetirar() {
     if (selectedCard) {
       router.push({
-        pathname: './withdraw',
+        pathname: '/withdraw',
         params: { cardId: selectedCard.id },  // Pasa la tarjeta seleccionada a la pantalla de retiro
       });
     } else {
@@ -60,7 +60,7 @@ const Index = () => {
   function handleScanearQR() {
     if (selectedCard) {
       router.push({
-        pathname: './qrScanForm',
+        pathname: '/qrScanForm',
         params: { cardId: selectedCard.id },  // Pasa la tarjeta seleccionada a la pantalla de retiro
       });
     } else {
@@ -69,7 +69,7 @@ const Index = () => {
   }
 
   function handleReportes() {
-    router.push('./reportes');
+    router.push('/reportes');
   }
 
   return (

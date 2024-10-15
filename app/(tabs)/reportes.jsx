@@ -5,7 +5,7 @@ import DateTimePicker from '@react-native-community/datetimepicker'; // Usar Dat
 import { app } from '../utils/firebaseConfig';
 import { useCard } from '../context/CardContext'; // Importa el contexto para la tarjeta seleccionada
 
-const TransactionHistory = () => {
+const reportes = () => {
   const [transactions, setTransactions] = useState([]);
   const [filter, setFilter] = useState('all'); // Estado para el filtro de tipo
   const [startDate, setStartDate] = useState(null); // Estado para la fecha de inicio
@@ -207,4 +207,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TransactionHistory;
+export default reportes;
