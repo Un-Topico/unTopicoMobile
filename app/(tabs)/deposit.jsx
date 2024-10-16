@@ -10,12 +10,14 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import { getFirestore, doc, setDoc, collection, addDoc } from 'firebase/firestore';
-import { useCard } from '../context/CardContext'; // Para obtener la tarjeta seleccionada
+import { useCard } from '../context/CardContext';
 import { getAuth, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 import * as LocalAuthentication from 'expo-local-authentication';
 import Modal from 'react-native-modal';
+import Card1 from '../components/card1';
+const Depositar = () => {
 
-const Retirar = () => {
+
   const [monto, setMonto] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [loading, setLoading] = useState(false);
@@ -27,8 +29,7 @@ const Retirar = () => {
   const { currentUser } = auth;
   const db = getFirestore();
 
-  // Función para manejar el retiro
-  const handleRetiro = async () => {
+  const handleDeposito = async () => {
     if (!selectedCard) {
       Alert.alert('Error', 'Por favor selecciona una tarjeta válida.');
       return;
@@ -39,13 +40,6 @@ const Retirar = () => {
       return;
     }
 
-    const parsedMonto = parseFloat(monto);
-
-    if (parsedMonto > selectedCard.balance) {
-      Alert.alert('Error', 'No tienes suficiente saldo para realizar el retiro.');
-      return;
-    }
-
     // Intentar autenticación biométrica
     const biometricResult = await LocalAuthentication.authenticateAsync({
       promptMessage: 'Autenticación requerida',
@@ -53,8 +47,8 @@ const Retirar = () => {
     });
 
     if (biometricResult.success) {
-      // Autenticación biométrica exitosa, proceder con el retiro
-      proceedWithRetiro();
+      // Autenticación biométrica exitosa, proceder con el depósito
+      proceedWithDeposit();
     } else {
       // La autenticación biométrica falló o el usuario canceló
       // Solicitar contraseña
@@ -62,36 +56,33 @@ const Retirar = () => {
     }
   };
 
-  const proceedWithRetiro = async () => {
+  const proceedWithDeposit = async () => {
     setLoading(true);
 
     try {
       const parsedMonto = parseFloat(monto);
-      const newBalance = selectedCard.balance - parsedMonto;
+      const newBalance = selectedCard.balance + parsedMonto;
 
-      // Actualiza el saldo de la tarjeta en Firestore
       const cardRef = doc(db, 'cards', selectedCard.id);
       await setDoc(cardRef, { balance: newBalance }, { merge: true });
 
-      // Guardar la transacción en la colección 'transactions'
       await addDoc(collection(db, 'transactions'), {
         transaction_id: `transaction_${Date.now()}`,
         card_id: selectedCard.id,
-        transaction_type: 'Retiro',
+        transaction_type: 'Deposito',
         amount: parsedMonto,
         transaction_date: new Date(),
         description: descripcion || 'Sin descripción',
-        status: 'sent',
+        status: 'received',
         ownerId: selectedCard.ownerId,
       });
 
-      Alert.alert('Éxito', 'El retiro se ha realizado con éxito.');
+      Alert.alert('Éxito', 'El depósito se ha realizado con éxito.');
 
-      // Limpiar el formulario
       setMonto('');
       setDescripcion('');
     } catch (error) {
-      Alert.alert('Error', `Hubo un error al realizar el retiro: ${error.message}`);
+      Alert.alert('Error', `Hubo un error al realizar el depósito: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -109,8 +100,7 @@ const Retirar = () => {
       setIsPasswordModalVisible(false);
       setPasswordInput('');
 
-      // Autenticación exitosa, proceder con el retiro
-      proceedWithRetiro();
+      proceedWithDeposit();
     } catch (error) {
       Alert.alert('Error', 'Contraseña incorrecta. Intenta de nuevo.');
     }
@@ -119,22 +109,21 @@ const Retirar = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        <Text style={styles.title}>Retirar</Text>
+        <Card1 datos={selectedCard}/>
+        <Text style={styles.title}>Depositar</Text>
 
-        {/* Campo de monto */}
         <TextInput
           style={styles.input}
-          placeholder={'Ingrese el monto'}
+          placeholder="Ingrese el monto"
           placeholderTextColor="#707070"
           value={monto}
           onChangeText={(text) => setMonto(text)}
           keyboardType="numeric"
         />
 
-        {/* Campo de descripción */}
         <TextInput
           style={[styles.input, styles.textArea]}
-          placeholder={'Descripción breve (opcional)'}
+          placeholder="Descripción breve (opcional)"
           placeholderTextColor="#707070"
           value={descripcion}
           onChangeText={(text) => setDescripcion(text)}
@@ -142,9 +131,8 @@ const Retirar = () => {
           numberOfLines={3}
         />
 
-        {/* Botón para realizar el retiro */}
-        <TouchableOpacity style={styles.button} onPress={handleRetiro} disabled={loading}>
-          <Text style={styles.buttonText}>{loading ? 'Procesando...' : 'Realizar Retiro'}</Text>
+        <TouchableOpacity style={styles.button} onPress={handleDeposito} disabled={loading}>
+          <Text style={styles.buttonText}>{loading ? 'Procesando...' : 'Depositar'}</Text>
         </TouchableOpacity>
 
         {/* Modal para ingresar la contraseña */}
@@ -178,7 +166,6 @@ const Retirar = () => {
 };
 
 const styles = StyleSheet.create({
-  // ... tus estilos existentes
   container: {
     flex: 1,
     padding: 20,
@@ -203,7 +190,7 @@ const styles = StyleSheet.create({
   },
   textArea: {
     height: 100,
-    textAlignVertical: 'top',
+    textAlignVertical: 'top', // Alinea el texto al principio del TextInput cuando es multilinea
   },
   button: {
     backgroundColor: '#4FD290',
@@ -217,7 +204,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  // Estilos para el modal
   modalContainer: {
     backgroundColor: 'white',
     padding: 20,
@@ -254,6 +240,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
   },
+
+  
 });
 
-export default Retirar;
+export default Depositar;
+

@@ -49,7 +49,7 @@ const Settings = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      router.push("/login");
+      router.navigate("/");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
     }
@@ -59,17 +59,17 @@ const Settings = () => {
     Información_Personal: {
       displayName: 'Información Personal',
       iconName: 'address-book-o',
-      onPress: () => router.push('./personal_Info'),
+      onPress: () => router.push('/personal_Info'),
     },
     Notifications: {
       displayName: ' Notificaciones',
       iconName: 'barcode',
-      onPress: () => router.push('./Notifications'),
+      onPress: () => router.push('/Notifications'),
     },
     Cambiar_NIP: {
       displayName: 'Cambiar NIP',
       iconName: 'circle',
-      onPress: () => router.push('./changeNIP'),
+      onPress: () => router.push('/changeNIP'),
     },
     Cerrar_Sesión: {
       displayName: 'Cerrar Sesión',
@@ -82,12 +82,12 @@ const Settings = () => {
     Preguntas_Frecuentes: {
       displayName: 'Preguntas Frecuentes',
       iconName: 'question-circle-o',
-      onPress: () => router.push('./FAQ'),
+      onPress: () => router.push('/FAQ'),
     },
     Chat_Soporte: {
       displayName: 'Chat con Soporte',
       iconName: 'commenting-o',
-      onPress: () => router.push('./chat'),
+      onPress: () => router.push('/chat'),
     },
   };
 
