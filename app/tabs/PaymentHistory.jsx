@@ -19,12 +19,11 @@ const PaymentHistory = () => {
 
   // Obtenemos al usuario actual directamente desde Firebase
   useEffect(() => {
-    console.log('useEffect para obtener currentUser ejecutado');
     const auth = getAuth();
     const user = auth.currentUser;
 
     if (user) {
-      console.log('Usuario autenticado:', user.uid);
+      console.log('Usuario autenticado:', user);
       setCurrentUser(user);
     } else {
       console.error('Error: Usuario no autenticado.');
@@ -34,9 +33,9 @@ const PaymentHistory = () => {
   // Cargar tarjetas cuando currentUser esté definido
   useEffect(() => {
     if (currentUser && currentUser.uid) {
-      console.log('useEffect para cargar tarjetas ejecutado, UID del usuario:', currentUser.uid);
       const loadCards = async () => {
         try {
+          console.log('Cargando tarjetas para el usuario:', currentUser.uid);
           const userCards = await fetchCards(currentUser.uid);
           console.log('Tarjetas cargadas:', userCards);
           setCards(userCards);
@@ -47,16 +46,15 @@ const PaymentHistory = () => {
         }
       };
       loadCards();
-      console.log('No se ha definido el currentUser aún.');
     }
   }, [currentUser]);
 
   const fetchPurchaseHistory = async (cardId) => {
-    console.log('Fetching payment history para la tarjeta con ID:', cardId);
     setLoading(true);
     try {
+      console.log('Cargando historial de pagos para la tarjeta:', cardId);
       const paymentHistory = await fetchPaymentHistory(cardId);
-      console.log('Historial de pagos obtenido:', paymentHistory);
+      console.log('Historial de pagos cargado:', paymentHistory);
       setTransactions(paymentHistory);
     } catch (error) {
       console.error("Error loading payment history: ", error);
@@ -66,6 +64,7 @@ const PaymentHistory = () => {
   };
 
   const handleCardSelection = (cardId) => {
+    console.log('Tarjeta seleccionada:', cardId);
     setSelectedCardId(cardId);
     fetchPurchaseHistory(cardId);
   };
