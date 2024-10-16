@@ -23,7 +23,6 @@ const PaymentHistory = () => {
     const user = auth.currentUser;
 
     if (user) {
-      console.log('Usuario autenticado:', user);
       setCurrentUser(user);
     } else {
       console.error('Error: Usuario no autenticado.');
@@ -35,9 +34,7 @@ const PaymentHistory = () => {
     if (currentUser && currentUser.uid) {
       const loadCards = async () => {
         try {
-          console.log('Cargando tarjetas para el usuario:', currentUser.uid);
           const userCards = await fetchCards(currentUser.uid);
-          console.log('Tarjetas cargadas:', userCards);
           setCards(userCards);
         } catch (error) {
           console.error("Error loading cards: ", error);
@@ -52,9 +49,7 @@ const PaymentHistory = () => {
   const fetchPurchaseHistory = async (cardId) => {
     setLoading(true);
     try {
-      console.log('Cargando historial de pagos para la tarjeta:', cardId);
       const paymentHistory = await fetchPaymentHistory(cardId);
-      console.log('Historial de pagos cargado:', paymentHistory);
       setTransactions(paymentHistory);
     } catch (error) {
       console.error("Error loading payment history: ", error);
@@ -64,7 +59,6 @@ const PaymentHistory = () => {
   };
 
   const handleCardSelection = (cardId) => {
-    console.log('Tarjeta seleccionada:', cardId);
     setSelectedCardId(cardId);
     fetchPurchaseHistory(cardId);
   };
