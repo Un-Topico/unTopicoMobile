@@ -41,19 +41,19 @@ export default function TabLayout() {
           />
 
           <Tabs.Screen
-            name="settings"
+            name="servicios"
             options={{
-              title: 'Settings',
-              tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="cog" color={color} />,
+              title: 'Servicios',
+              tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="list-alt" color={color} />,
               headerShown: false,
             }}
           />
 
           <Tabs.Screen
-            name="servicios"
+            name="settings"
             options={{
-              title: 'Servicios',
-              tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="list-alt" color={color} />,
+              title: 'Settings',
+              tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="cog" color={color} />,
               headerShown: false,
             }}
           />
@@ -136,7 +136,7 @@ export default function TabLayout() {
               headerShown: false,
             }}
           />
-           <Tabs.Screen
+          <Tabs.Screen
             name="qrDepositForm"
             options={{
               href: null,

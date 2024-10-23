@@ -13,7 +13,6 @@ import {
 import { getFirestore, collection, doc, setDoc, query, where, getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { app } from "../utils/firebaseConfig";
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 export const CreditCardForm = ({ onCardSaved }) => {
   const db = getFirestore(app);
@@ -155,8 +154,7 @@ export const CreditCardForm = ({ onCardSaved }) => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <Text style={styles.title}>Añadir Tarjeta</Text>
         <View style={styles.cardContainer}>
-          <Icon name={cardType.toLowerCase()} size={24} color="#007AFF" style={styles.cardIcon} />
-          <View style={styles.inputContainer}>
+        <View style={styles.inputContainer}>
             <Text style={styles.label}>Nombre en la Tarjeta</Text>
             <TextInput
               style={styles.input}
