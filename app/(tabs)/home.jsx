@@ -5,12 +5,11 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import IconM from 'react-native-vector-icons/MaterialIcons'
 import UserCards from '../components/card';
 import { useCard } from '../context/CardContext';  // Importa el contexto
+import HeadLogo from '../components/headLogo';
 
 const { width } = Dimensions.get('window');
 
 const Index = () => {
-  const appName = "Untopico";
-  const logoSource = require('../../assets/images/logo.png');
   const router = useRouter();
   const { selectedCard } = useCard();  // Obtener la tarjeta seleccionada
 
@@ -74,10 +73,7 @@ const Index = () => {
 
   return (
     <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContentContainer}>
-      <View style={styles.head}>
-        <Image style={styles.logo} source={logoSource} />
-        <Text style={styles.headtitle}>{appName}</Text>
-      </View>
+      <HeadLogo />
 
       <UserCards />
 
@@ -129,25 +125,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 20,
   },
-  head: {
-    marginTop: 25,
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingBottom: 10,
-    flexDirection: 'row',
-  },
-  logo: {
-    width: 25,
-    height: 25,
-    marginBottom: 5,
-    marginRight: 10,
-  },
-  headtitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
-  },
+ 
   Buttoncontainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
