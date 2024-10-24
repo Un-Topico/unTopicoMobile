@@ -3,39 +3,41 @@ import { View, Text, ImageBackground, StyleSheet, Dimensions } from 'react-nativ
 
 const { width } = Dimensions.get('window');
 
-const Card1 = (datos) => {
-    const [cardData, setCardData] = useState(datos.datos)
+const Card1 = ({ datos }) => {
     return (
-        <>
-            {cardData ? <View style={styles.card}>
-                <ImageBackground
-                    source={require('../../assets/images/tarjeta.png')}
-                    style={styles.cardImage}
-                    imageStyle={styles.cardImageStyle}
-                />
-                <View style={styles.cardContent}>
-                    <View style={styles.balanceTextContainer}>
-                        <Text style={styles.balanceText}>
-                        {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(cardData.balance)}
-                        </Text>
-                    </View>
-                    <View style={styles.cardTypeContainer}>
-                        <Text style={styles.cardType}>{cardData.cardType}</Text>
-                    </View>
-                    <View style={styles.cardInfoContainer}>
-                        <View style={styles.view_cardNumber_Holder}>
-                            <Text style={styles.text_cardNumber_Holder}>{cardData.cardNumber}</Text>
-                        </View>
-                        <View style={styles.view_cvv_expire}>
-                            <Text style={styles.text_cvv_expire}>{`CVV: ${cardData.cvv}`}</Text>
-                            <Text style={styles.text_cvv_expire}>{`Exp: ${cardData.expiryDate}`}</Text>
-                        </View>
-                    </View>
+      <>
+        {datos ? (
+          <View style={styles.card}>
+            <ImageBackground
+              source={require('../../assets/images/tarjeta.png')}
+              style={styles.cardImage}
+              imageStyle={styles.cardImageStyle}
+            />
+            <View style={styles.cardContent}>
+              <View style={styles.balanceTextContainer}>
+                <Text style={styles.balanceText}>
+                  {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(datos.balance)}
+                </Text>
+              </View>
+              <View style={styles.cardTypeContainer}>
+                <Text style={styles.cardType}>{datos.cardType}</Text>
+              </View>
+              <View style={styles.cardInfoContainer}>
+                <View style={styles.view_cardNumber_Holder}>
+                  <Text style={styles.text_cardNumber_Holder}>{datos.cardNumber}</Text>
                 </View>
-            </View> : ''}
-        </>
+                <View style={styles.view_cvv_expire}>
+                  <Text style={styles.text_cvv_expire}>{`CVV: ${datos.cvv}`}</Text>
+                  <Text style={styles.text_cvv_expire}>{`Exp: ${datos.expiryDate}`}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        ) : null}
+      </>
     );
-};
+  };
+  
 
 const styles = StyleSheet.create({
     card: {
