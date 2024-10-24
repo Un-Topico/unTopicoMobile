@@ -109,7 +109,11 @@ const Depositar = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        <Card1 datos={selectedCard}/>
+
+        <View style={styles.card1}>
+          <Card1 datos={selectedCard} />
+        </View>
+
         <Text style={styles.title}>Depositar</Text>
 
         <TextInput
@@ -170,7 +174,10 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
+  },
+  card1: {
+    marginTop: 50,
+    marginBottom: 50,
   },
   title: {
     fontSize: 24,
@@ -241,7 +248,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
-  
+
 });
 
 export default Depositar;

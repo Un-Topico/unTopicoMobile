@@ -25,8 +25,6 @@ const Card1 = (datos) => {
                     <View style={styles.cardInfoContainer}>
                         <View style={styles.view_cardNumber_Holder}>
                             <Text style={styles.text_cardNumber_Holder}>{cardData.cardNumber}</Text>
-
-                            <Text style={styles.text_cardNumber_Holder}>{cardData.cardHolderName}</Text>
                         </View>
                         <View style={styles.view_cvv_expire}>
                             <Text style={styles.text_cvv_expire}>{`CVV: ${cardData.cvv}`}</Text>
@@ -40,9 +38,6 @@ const Card1 = (datos) => {
 };
 
 const styles = StyleSheet.create({
-    swiperContainer: {
-        height: width * 0.75,
-    },
     card: {
         width: width * 0.9,
         height: width * 0.6,
@@ -53,58 +48,59 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.8,
         shadowRadius: 5,
         elevation: 5,
-    },
-    cardContent: {
+      },
+      cardContent: {
         position: 'absolute',
-    },
-    cardImage: {
+      },
+      cardImage: {
         flex: 1,
         justifyContent: 'center',
-    },
-    cardImageStyle: {
+      },
+      cardImageStyle: {
         borderRadius: 15,
         resizeMode: 'contain',
-    },
-    balanceTextContainer: {
+      },
+      balanceTextContainer: {
         alignSelf: 'flex-end',
         marginRight: '7%',
         height: width * 0.15,
         justifyContent: 'flex-end',
-    },
-    cardTypeContainer: {
+      },
+      cardTypeContainer: {
         alignSelf: 'flex-end',
         marginRight: '7%',
         height: width * 0.05,
         justifyContent: 'flex-end',
-    },
-    balanceText: {
+      },
+      balanceText: {
         color: 'white',
         fontWeight: 'bold',
         fontSize: 24,
-    },
-    cardType: {
+      },
+      cardType: {
         color: 'white',
         fontSize: 16,
-    },
-    cardInfoContainer: {
+      },
+      cardInfoContainer: {
         flex: 1,
         width: width * 0.9,
         flexDirection: 'row',
         height: width * 0.33,
         justifyContent: 'space-around',
         alignItems: 'flex-end',
-    },
-    view_cardNumber_Holder: {},
-    text_cardNumber_Holder: {
+      },
+      view_cardNumber_Holder: {},
+      text_cardNumber_Holder: {
         color: 'white',
         fontWeight: 'bold',
         fontSize: 18,
-    },
-    view_cvv_expire: {},
-    text_cvv_expire: {
+        marginBottom: 10,
+      },
+      view_cvv_expire: {},
+      text_cvv_expire: {
         color: 'white',
         fontSize: 16,
-    },
+      },
 });
 
 export default Card1;
