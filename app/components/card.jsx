@@ -17,7 +17,9 @@ const Card = ({ cardData }) => (
     />
     <View style={styles.cardContent}>
       <View style={styles.balanceTextContainer}>
-        <Text style={styles.balanceText}>{cardData.balance}</Text>
+        <Text style={styles.balanceText}>
+        {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(cardData.balance)}
+          </Text>
       </View>
       <View style={styles.cardTypeContainer}>
         <Text style={styles.cardType}>{cardData.cardType}</Text>

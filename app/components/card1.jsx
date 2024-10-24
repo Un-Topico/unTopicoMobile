@@ -15,7 +15,9 @@ const Card1 = (datos) => {
                 />
                 <View style={styles.cardContent}>
                     <View style={styles.balanceTextContainer}>
-                        <Text style={styles.balanceText}>{cardData.balance}</Text>
+                        <Text style={styles.balanceText}>
+                        {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(cardData.balance)}
+                        </Text>
                     </View>
                     <View style={styles.cardTypeContainer}>
                         <Text style={styles.cardType}>{cardData.cardType}</Text>
@@ -23,7 +25,7 @@ const Card1 = (datos) => {
                     <View style={styles.cardInfoContainer}>
                         <View style={styles.view_cardNumber_Holder}>
                             <Text style={styles.text_cardNumber_Holder}>{cardData.cardNumber}</Text>
-    
+
                             <Text style={styles.text_cardNumber_Holder}>{cardData.cardHolderName}</Text>
                         </View>
                         <View style={styles.view_cvv_expire}>
@@ -51,7 +53,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.8,
         shadowRadius: 5,
         elevation: 5,
-        marginLeft: (width - width * 0.9) / 2,
     },
     cardContent: {
         position: 'absolute',
