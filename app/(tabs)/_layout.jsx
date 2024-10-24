@@ -76,6 +76,13 @@ export default function TabLayout() {
             }}
           />
           <Tabs.Screen
+            name="addContact"
+            options={{
+              href: null,
+              headerShown: false,
+            }}
+          />
+          <Tabs.Screen
             name="withdraw"
             options={{
               href: null,

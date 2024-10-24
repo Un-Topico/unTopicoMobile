@@ -28,6 +28,8 @@ import Contacts2 from '../components/contacts2';
 import * as LocalAuthentication from 'expo-local-authentication';
 import Modal from 'react-native-modal';
 
+import AddContactButton from '../components/addContact';
+
 const transfer = () => {
   const [email, setEmail] = useState('');
   const [clabe, setClabe] = useState('');
@@ -256,16 +258,29 @@ const transfer = () => {
   const isEmailDisabled = clabe !== '';
   const isClabeDisabled = email !== '';
 
+  function handleNavigate_AddContact() {
+    router.navigate({
+      pathname: '/addContact',
+    });
+  }
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <ScrollView>
-        <View style={styles.container}>
+      <ScrollView style={styles.container}>
+        <View >
           <Text style={styles.title}>Transferir</Text>
 
           <Text style={styles.title2}>¿A quién quieres transferir?</Text>
           {/* Componente de contactos */}
+          <AddContactButton
+            db={db}
+            onPress={() => {
+              handleNavigate_AddContact();
+            }
+            } />
           <Contacts2 currentUser={currentUser} onContactSelect={handleContactSelect} />
 
+          <Text style={styles.title2}>Transferir:</Text>
           {/* Campo de correo electrónico */}
           <TextInput
             style={styles.input}
