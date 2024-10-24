@@ -15,6 +15,8 @@ import { getAuth, reauthenticateWithCredential, EmailAuthProvider } from 'fireba
 import * as LocalAuthentication from 'expo-local-authentication';
 import Modal from 'react-native-modal';
 import Card1 from '../components/card1';
+import HeadLogo from '../components/headLogo';
+
 const Depositar = () => {
 
 
@@ -110,6 +112,8 @@ const Depositar = () => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
 
+        <HeadLogo />
+
         <View style={styles.card1}>
           <Card1 datos={selectedCard} />
         </View>
@@ -176,7 +180,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   card1: {
-    marginTop: 50,
     marginBottom: 50,
   },
   title: {
