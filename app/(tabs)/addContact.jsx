@@ -11,12 +11,11 @@ const AddContact_Screen = () => {
     const [newContactAlias, setNewContactAlias] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setErrorMessage] = useState("");
+    const [success, setSuccessMessage] = useState("");
     const [contacts, setContacts] = useState([]);
-    const [successMessage, setSuccessMessage] = useState("");
 
     const router = useRouter();
     const db = getFirestore();
-    console.log(db);
 
     const auth = getAuth();
     const currentUser = auth.currentUser;

@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useState, useEffect, useCallback  } from "react";
 import { View, Text, Button, Alert, TouchableOpacity } from "react-native";
 import { getFirestore, collection, query, where, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
-import { TextInput } from "react-native";
-import { Picker } from '@react-native-picker/picker'; // Importar Picker
 import { ActivityIndicator } from "react-native-paper";
 import Contact from "./contact-single";
 
@@ -30,32 +29,33 @@ const Contacts2 = ({ currentUser, onContactSelect }) => {
         };
     }, [error, success]);
 
-
     const db = getFirestore();
 
-    useEffect(() => {
-        const fetchContacts = async () => {
+    useFocusEffect(
+        useCallback(() => {
+          const fetchContacts = async () => {
             setLoading(true);
             try {
-                const q = query(
-                    collection(db, "contacts"),
-                    where("ownerId", "==", currentUser.uid)
-                );
-                const querySnapshot = await getDocs(q);
-                const contactsData = [];
-                querySnapshot.forEach((doc) => {
-                    contactsData.push({ ...doc.data(), id: doc.id });
-                });
-                setContacts(contactsData);
+              const q = query(
+                collection(db, "contacts"),
+                where("ownerId", "==", currentUser.uid)
+              );
+              const querySnapshot = await getDocs(q);
+              const contactsData = [];
+              querySnapshot.forEach((doc) => {
+                contactsData.push({ ...doc.data(), id: doc.id });
+              });
+              setContacts(contactsData);
             } catch (error) {
-                setErrorMessage("Error al obtener los contactos.");
+              setErrorMessage("Error al obtener los contactos.");
             } finally {
-                setLoading(false);
+              setLoading(false);
             }
-        };
-
-        fetchContacts();
-    }, [db, currentUser.uid, setErrorMessage]);
+          };
+    
+          fetchContacts();
+        }, [db, currentUser.uid])
+      );
 
     const handleDeleteContact = async (contactId) => {
         setLoading(true);
