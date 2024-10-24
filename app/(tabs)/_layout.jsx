@@ -66,8 +66,10 @@ export default function TabLayout() {
               headerShown: false,
             }}
           />
+
+          {/* Transfer */}
           <Tabs.Screen
-            name="transfer"
+            name="(transfer)/transfer"
             options={{
               href: null,
               headerShown: false,
