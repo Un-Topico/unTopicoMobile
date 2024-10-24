@@ -24,6 +24,7 @@ import { getAuth } from "firebase/auth";
 import { app } from "./utils/firebaseConfig";
 import { CreditCardForm } from "./components/CreditCardForm";
 import { checkUserAccount } from "./auth/checkUserAccount";
+import { Picker } from "@react-native-picker/picker"; // Importa el Picker
 
 export default function AccountSetup() {
   const db = getFirestore(app);
@@ -126,12 +127,17 @@ export default function AccountSetup() {
         </View>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Tipo de Cuenta</Text>
-          <TextInput
-            style={styles.input}
-            value={accountType}
-            onChangeText={setAccountType}
+          <Picker
+            selectedValue={accountType}
+            onValueChange={(itemValue) => setAccountType(itemValue)}
+            style={styles.picker} // Agrega estilo si es necesario
             accessibilityLabel="Tipo de cuenta"
-          />
+          >
+            <Picker.Item label="Ahorro" value="Ahorro" />
+            <Picker.Item label="Corriente" value="Corriente" />
+            <Picker.Item label="Inversión" value="Inversión" />
+            {/* Agrega más tipos de cuenta según sea necesario */}
+          </Picker>
         </View>
         {status ? (
           <CreditCardForm onCardSaved={setIsCardSaved} />
@@ -181,5 +187,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     marginVertical: 10,
+  },
+  picker: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 20,
+    height: 50,
   },
 });

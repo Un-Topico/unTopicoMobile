@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  StyleSheet, 
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
   Alert,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
 } from "react-native";
 import { getFirestore, collection, doc, setDoc, query, where, getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
@@ -93,6 +93,23 @@ export const CreditCardForm = ({ onCardSaved }) => {
     return lengthValid && luhnCheck(cleanedNumber);
   };
 
+  const isValidExpiryDate = (expiry) => {
+    const [month, year] = expiry.split("/").map(Number);
+    const now = new Date();
+    const currentYear = now.getFullYear() % 100; // get last two digits of the year
+    const currentMonth = now.getMonth() + 1; // months are 0-based
+
+    // Check if month and year are valid
+    if (month < 1 || month > 12 || year < currentYear) {
+      return false;
+    }
+    // Check if the card has expired
+    if (year === currentYear && month < currentMonth) {
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async () => {
     const user = auth.currentUser;
     if (!user) {
@@ -100,8 +117,13 @@ export const CreditCardForm = ({ onCardSaved }) => {
       return;
     }
 
-    if (!isValidCardNumber(cardNumber)){
+    if (!isValidCardNumber(cardNumber)) {
       Alert.alert("Error", "Número de tarjeta no válido. Por favor, revise el número ingresado");
+      return;
+    }
+
+    if (!isValidExpiryDate(expiryDate)) {
+      Alert.alert("Error", "Fecha de expiración no válida. Por favor, ingrese una fecha futura.");
       return;
     }
 
@@ -147,14 +169,14 @@ export const CreditCardForm = ({ onCardSaved }) => {
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <Text style={styles.title}>Añadir Tarjeta</Text>
         <View style={styles.cardContainer}>
-        <View style={styles.inputContainer}>
+          <View style={styles.inputContainer}>
             <Text style={styles.label}>Nombre en la Tarjeta</Text>
             <TextInput
               style={styles.input}
@@ -221,7 +243,6 @@ export const CreditCardForm = ({ onCardSaved }) => {
         >
           <Text style={styles.buttonText}>Guardar Tarjeta</Text>
         </TouchableOpacity>
-        {isCardSaved && <Text style={styles.success}>Tarjeta guardada exitosamente</Text>}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -230,76 +251,61 @@ export const CreditCardForm = ({ onCardSaved }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   scrollContainer: {
-    flexGrow: 1,
     padding: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    color: '#333',
   },
   cardContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 20,
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    padding: 15,
+    elevation: 3,
     marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  cardIcon: {
-    alignSelf: 'flex-end',
-    marginBottom: 10,
   },
   inputContainer: {
     marginBottom: 15,
   },
   label: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 16,
     marginBottom: 5,
+    color: "#333333",
   },
   input: {
+    height: 40,
+    borderColor: "#cccccc",
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
+    borderRadius: 4,
+    paddingHorizontal: 10,
     fontSize: 16,
   },
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   halfWidth: {
-    width: '48%',
+    flex: 1,
+    marginRight: 10,
   },
   button: {
-    backgroundColor: '#007AFF',
+    backgroundColor: "#007bff",
+    paddingVertical: 10,
     borderRadius: 5,
-    padding: 15,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonDisabled: {
-    backgroundColor: '#A0A0A0',
+    backgroundColor: "#cccccc",
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  success: {
-    color: "green",
-    marginTop: 20,
-    textAlign: 'center',
+    color: "#ffffff",
     fontSize: 16,
+    fontWeight: "bold",
   },
 });
+
+export default CreditCardForm;
