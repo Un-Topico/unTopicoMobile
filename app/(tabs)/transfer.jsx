@@ -23,8 +23,8 @@ import {
 } from 'firebase/firestore';
 import { useRouter } from 'expo-router';
 import { getAuth, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
-import { useCard } from '../../context/CardContext'; // Importar el contexto de la tarjeta seleccionada
-import Contacts2 from '../../components/contacts2';
+import { useCard } from '../context/CardContext'; // Importar el contexto de la tarjeta seleccionada
+import Contacts2 from '../components/contacts2';
 import * as LocalAuthentication from 'expo-local-authentication';
 import Modal from 'react-native-modal';
 
