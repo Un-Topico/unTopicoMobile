@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
 import { getAuth, signOut } from "firebase/auth";
@@ -7,10 +7,14 @@ import {
   getFirestore,
   collection,
   getDocs,
-  query, 
-  where
+  query,
+  where,
+  updateDoc,
+  doc
 } from "firebase/firestore";
 import { app } from "../utils/firebaseConfig";
+import * as ImagePicker from 'expo-image-picker';
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Importar Firebase Storage
 
 const Settings = () => {
   const iconSize = 30;
@@ -18,6 +22,7 @@ const Settings = () => {
   const router = useRouter();
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const storage = getStorage(app); // Inicializar Firebase Storage
   const { currentUser } = auth;
   const [userName, setUserName] = useState("");
   const [userImageURL, setUserImageURL] = useState("");
@@ -34,7 +39,7 @@ const Settings = () => {
             if (userDoc) {
               const userData = userDoc.data();
               setUserName(userData.name);
-              setUserImageURL(userData.profileImage);
+              setUserImageURL(userData.profileImage); // Cargar la URL de la imagen desde Firestore
             }
           }
         } catch (error) {
@@ -52,6 +57,74 @@ const Settings = () => {
       router.navigate("/");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
+    }
+  };
+
+  const uploadImageToFirebase = async (imageUri) => {
+    try {
+      const response = await fetch(imageUri); // Obtener el archivo de la URI
+      const blob = await response.blob(); // Convertir la respuesta en blob
+      
+      // Crear una referencia a Firebase Storage con el UID del usuario
+      const storageRef = ref(storage, `profileImages/${currentUser.uid}.jpg`);
+      
+      // Subir la imagen a Firebase Storage
+      await uploadBytes(storageRef, blob);
+
+      // Obtener la URL pública de la imagen subida
+      const downloadURL = await getDownloadURL(storageRef);
+      
+      return downloadURL; // Retornar la URL para guardarla en Firestore
+    } catch (error) {
+      console.error("Error al subir la imagen:", error);
+      throw error;
+    }
+  };
+
+  const changeProfilePicture = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("Permiso para acceder a la galería es necesario.");
+      return;
+    }
+
+    const pickerResult = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!pickerResult.canceled && pickerResult.assets && pickerResult.assets.length > 0) {
+      const selectedImageUri = pickerResult.assets[0].uri;
+
+      if (!selectedImageUri) {
+        Alert.alert("Error", "No se puede obtener la imagen seleccionada.");
+        return;
+      }
+
+      try {
+        // Subir la imagen a Firebase Storage y obtener la URL pública
+        const imageUrl = await uploadImageToFirebase(selectedImageUri);
+
+        setUserImageURL(imageUrl); // Actualizar la imagen en la pantalla con la nueva URL
+
+        // Actualizar la URL de la imagen en Firestore
+        const accountsRef = collection(db, "accounts");
+        const accountQuery = query(accountsRef, where("ownerId", "==", currentUser.uid));
+        const querySnapshot = await getDocs(accountQuery);
+        if (!querySnapshot.empty) {
+          const userDoc = querySnapshot.docs[0];
+          const userDocRef = doc(db, "accounts", userDoc.id);
+
+          await updateDoc(userDocRef, { profileImage: imageUrl });
+          Alert.alert("Imagen de perfil actualizada exitosamente");
+        }
+      } catch (error) {
+        console.error("Error al actualizar la imagen de perfil:", error);
+        Alert.alert("Error", "Hubo un problema al actualizar la imagen de perfil.");
+      }
     }
   };
 
@@ -105,19 +178,25 @@ const Settings = () => {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-        <Text style={styles.title0}>Settings</Text>
 
-        <View style={styles.ViewProfImage}>
-          {userImageURL ? (
-            <Image 
-              source={{ uri: userImageURL }} 
-              style={styles.ImageProfile} 
-              resizeMode="cover"
-            />
-          ) : (
-            <Icon name="user-circle-o" size={100} color={iconColor} style={styles.ImageProfile} />
-          )}
-          <Text style={styles.title}>{userName}</Text>
+        <Text style={styles.title0}>Settings</Text>
+        <View style={styles.datosPerfil}>
+          
+        <TouchableOpacity onPress={changeProfilePicture} style={styles.ViewProfImage}>
+            {userImageURL ? (
+              <Image
+                source={{ uri: userImageURL }}
+                style={styles.ImageProfile}
+                resizeMode="cover"
+              />
+            ) : (
+              <Icon name="user-circle-o" size={100} color={iconColor} style={styles.ImageProfile} />
+            )}
+          </TouchableOpacity>
+
+          <View>
+            <Text style={styles.title}>{userName}</Text>
+          </View>
         </View>
 
         <View style={styles.ViewSettings}>
@@ -136,7 +215,7 @@ const Settings = () => {
 
 const styles = StyleSheet.create({
   scrollContainer: {
-    paddingBottom: 70, // Para agregar un pequeño espacio al final
+    paddingBottom: 70, 
   },
   container: {
     flex: 1,
@@ -149,13 +228,15 @@ const styles = StyleSheet.create({
     left: '10%',
     fontWeight: 'bold',
   },
+  datosPerfil: {
+    flexDirection: 'row', // Cambia la dirección a vertical
+    alignItems: 'center',    // Centra los elementos
+    marginVertical: 20,
+    paddingHorizontal: 20, // Espaciado horizontal
+  },
   ViewProfImage: {
-    position: 'relative',
-    top: '4%',
-    left: '10%',
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
+    marginRight: 15,
+    left: 10,
   },
   ImageProfile: {
     width: 100,
@@ -169,7 +250,7 @@ const styles = StyleSheet.create({
   },
   ViewSettings: {
     position: 'relative',
-    top: '8%',
+    top: '6%',
     left: '10%',
   },
   ViewSupport: {

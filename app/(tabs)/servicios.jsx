@@ -22,7 +22,6 @@ const Servicios = () => {
     const user = auth.currentUser;
 
     if (user) {
-      console.log('Usuario autenticado:', user);
       setCurrentUser(user);
     } else {
       console.error('Error: Usuario no autenticado.');
@@ -34,14 +33,12 @@ const Servicios = () => {
     const fetchCards = async () => {
       try {
         if (currentUser && currentUser.uid) {
-          console.log('Cargando tarjetas para el usuario:', currentUser.uid);
           const cardQuery = query(
             collection(db, 'cards'),
             where('ownerId', '==', currentUser.uid) // Usamos ownerId en lugar de user_id
           );
           const cardSnapshot = await getDocs(cardQuery);
           const cardList = cardSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          console.log('Tarjetas cargadas:', cardList);
           setCards(cardList);
         }
       } catch (error) {
@@ -196,6 +193,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
     flex: 1,
+    justifyContent: 'center',
   },
   title: {
     fontSize: 22,

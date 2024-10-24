@@ -1,12 +1,15 @@
-// app/tabs/personal_info.tsx
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, ActivityIndicator, StyleSheet, ScrollView } from "react-native";
+import { 
+  View, Text, Button, ActivityIndicator, StyleSheet, 
+  ScrollView, TouchableOpacity, Alert 
+} from "react-native";
 import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { app } from "../utils/firebaseConfig";
 import { UserProfile } from "../components/userProfile";
+import { deleteProfilePicture } from "../utils/profileUtils";
 
-export default function personal_Info() {
+export default function PersonalInfo() {
   const auth = getAuth(app);
   const { currentUser } = auth;
   const [loading, setLoading] = useState(true);
@@ -20,8 +23,6 @@ export default function personal_Info() {
       }
 
       const db = getFirestore(app);
-
-      // Fetch account data
       const accountsCollection = collection(db, "accounts");
       const accountQuery = query(
         accountsCollection,
@@ -44,6 +45,11 @@ export default function personal_Info() {
     setAccountData((prevData) => ({ ...prevData, name: newName }));
   const handlePhoneUpdate = (newPhone) =>
     setAccountData((prevData) => ({ ...prevData, phoneNumber: newPhone }));
+
+  const handleDeleteProfilePicture = async () => {
+    const result = await deleteProfilePicture(currentUser.uid);
+    Alert.alert(result.success ? "Éxito" : "Error", result.message);
+  };
 
   if (loading) {
     return (
@@ -68,6 +74,14 @@ export default function personal_Info() {
       ) : (
         <Text style={styles.errorText}>No se encontraron datos del usuario.</Text>
       )}
+
+      {/* Botón para eliminar la imagen de perfil (siempre visible) */}
+      <TouchableOpacity 
+        onPress={handleDeleteProfilePicture} 
+        style={styles.deleteButton}
+      >
+        <Text style={styles.deleteButtonText}>Eliminar foto de perfil</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
@@ -76,39 +90,50 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     flexGrow: 1,
-    backgroundColor: "#f8f8f8", // Fondo suave para mejorar la legibilidad
+    backgroundColor: "#f8f8f8",
   },
   centered: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff", // Fondo blanco para el indicador de carga
+    backgroundColor: "#fff",
     padding: 20,
     borderRadius: 8,
-    shadowColor: "#000", // Sombra para dar profundidad
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 10,
-    elevation: 5, // Para Android
+    elevation: 5,
   },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: "#333", // Color del texto cargando
+    color: "#333",
   },
   profileContainer: {
-    backgroundColor: "#fff", // Fondo blanco para el contenedor del perfil
+    backgroundColor: "#fff",
     borderRadius: 10,
     padding: 20,
     marginVertical: 10,
-    shadowColor: "#000", // Sombra para dar profundidad
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 10,
-    elevation: 5, // Para Android
+    elevation: 5,
   },
   errorText: {
     textAlign: "center",
     fontSize: 18,
-    color: "#e74c3c", // Color rojo para errores
+    color: "#e74c3c",
     marginTop: 20,
+  },
+  deleteButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: 'red',
+    borderRadius: 5,
+  },
+  deleteButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
