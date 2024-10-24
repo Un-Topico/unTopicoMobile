@@ -54,7 +54,7 @@ const Index = () => {
     } else {
       alert("Por favor selecciona una tarjeta.");
     }
-   
+
   }
   function handleScanearQR() {
     if (selectedCard) {
@@ -73,9 +73,15 @@ const Index = () => {
 
   return (
     <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContentContainer}>
+      <View style={styles.HeadLogo}>
       <HeadLogo />
+        
+      </View>
+      
 
-      <UserCards />
+      <View style={styles.UserCards}>
+        <UserCards />
+      </View>
 
       <View style={styles.Buttoncontainer}>
         {/* Botón de Depositar */}
@@ -102,7 +108,7 @@ const Index = () => {
           <Icon name="file-text-o" size={40} color="#900" />
           <Text style={styles.buttonText}>Reportes</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.button} onPress={handleGenerarQR}>
           <Icon name="qrcode" size={40} color="#900" />
           <Text style={styles.buttonText}>Deposito por QR</Text>
@@ -125,7 +131,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 20,
   },
- 
+  HeadLogo: {
+    width: '100%',
+    marginTop: 20,
+  },
+
   Buttoncontainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',

@@ -88,7 +88,8 @@ const UserCards = () => {
 
 const styles = StyleSheet.create({
   swiperContainer: {
-    height: width * 0.75,
+    width: width, // Ocupa todo el ancho de la pantalla
+    height: width * 0.6 + 20,
   },
   card: {
     width: width * 0.9,
