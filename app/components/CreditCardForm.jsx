@@ -9,6 +9,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Modal,
+  FlatList
 } from "react-native";
 import { getFirestore, collection, doc, setDoc, query, where, getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
@@ -19,12 +21,22 @@ export const CreditCardForm = ({ onCardSaved }) => {
   const auth = getAuth(app);
   const [cardNumber, setCardNumber] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
+  const [accountType, setAccountType] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [cvv, setCvv] = useState("");
   const [cardHolderName, setCardHolderName] = useState("");
   const [cardType, setCardType] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [isCardSaved, setIsCardSaved] = useState(false);
+  const [nip, setNip] = useState("");
   const placeholderColor = "#9e9e9e";
+
+  const accountTypes = ["Ahorro", "Cheques", "Crédito"];
+
+  const handleSelectAccountType = (type) => {
+    setAccountType(type);
+    setIsModalVisible(false);
+  };
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -34,7 +46,7 @@ export const CreditCardForm = ({ onCardSaved }) => {
   }, [auth.currentUser]);
 
   useEffect(() => {
-    setIsButtonDisabled(!(cardNumber && expiryDate && cvv && cardHolderName));
+    setIsButtonDisabled(!(cardNumber && expiryDate && cvv && cardHolderName && nip && accountType));
   }, [cardNumber, expiryDate, cvv, cardHolderName]);
 
   const generateClabeNumber = () => {
@@ -144,6 +156,7 @@ export const CreditCardForm = ({ onCardSaved }) => {
         cardNumber: cardNumber.replace(/\s/g, ""),
         expiryDate,
         cvv,
+        nip,
         balance: 100,
         cardHolderName,
         ownerId: user.uid,
@@ -189,6 +202,42 @@ export const CreditCardForm = ({ onCardSaved }) => {
               accessibilityLabel="Nombre en la Tarjeta"
             />
           </View>
+
+          <TouchableOpacity
+            style={styles.input}
+            onPress={() => setIsModalVisible(true)}
+          >
+            <Text style={styles.tipoDeCuentaTexto}>
+              {accountType || "Selecciona el tipo de cuenta"}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Modal for account type selection */}
+          <Modal visible={isModalVisible} animationType="slide" transparent={true}>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <FlatList
+                  data={accountTypes}
+                  keyExtractor={(item) => item}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.modalItem}
+                      onPress={() => handleSelectAccountType(item)}
+                    >
+                      <Text style={styles.modalItemText}>{item}</Text>
+                    </TouchableOpacity>
+                  )}
+                />
+                <TouchableOpacity
+                  style={styles.modalCloseButton}
+                  onPress={() => setIsModalVisible(false)}
+                >
+                  <Text style={styles.modalCloseButtonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Número de Tarjeta</Text>
             <TextInput
@@ -230,6 +279,21 @@ export const CreditCardForm = ({ onCardSaved }) => {
                 keyboardType="numeric"
                 editable={!isCardSaved}
                 accessibilityLabel="CVV"
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>NIP</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="****"
+                placeholderTextColor={placeholderColor}
+                maxLength={4}
+                value={nip}
+                onChangeText={setNip}
+                keyboardType="numeric"
+                editable={!isCardSaved}
+                secureTextEntry
+                accessibilityLabel="NIP"
               />
             </View>
           </View>
@@ -306,6 +370,43 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+  },
+  modalItem: {
+    paddingVertical: 15,
+    borderBottomColor: "#ccc",
+    borderBottomWidth: 1,
+  },
+  modalItemText: {
+    fontSize: 18,
+    textAlign: "center",
+  },
+  modalCloseButton: {
+    marginTop: 20,
+    alignItems: "center",
+  },
+  modalCloseButtonText: {
+    fontSize: 16,
+    color: "#007bff",
+  },
+  tipoDeCuentaTexto:{
+    fontSize: 16,
+    color: "#9e9e9e",
+    textAlign: "center",
+    alignItems: "center",
+
+  },
+  
 });
 
 export default CreditCardForm;

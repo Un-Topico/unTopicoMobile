@@ -18,6 +18,9 @@
     "@expo/vector-icons": "^14.0.3",
     "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-native-community/datetimepicker": "^8.0.1",
+    "@react-native-firebase/app": "^21.2.0",
+    "@react-native-firebase/auth": "^21.2.0",
+    "@react-native-google-signin/google-signin": "^13.1.0",
     "@react-native-picker/picker": "^2.8.1",
     "axios": "^1.7.7",
     "expo": "~51.0.34",
@@ -47,7 +50,8 @@
     "react-native-svg": "15.2.0",
     "react-native-swiper-flatlist": "^3.2.5",
     "react-native-vector-icons": "^10.2.0",
-    "react-native-web": "~0.19.10"
+    "react-native-web": "~0.19.10",
+    "expo-auth-session": "~5.5.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

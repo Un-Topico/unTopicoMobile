@@ -19,8 +19,10 @@ const withdraw = () => {
   const [monto, setMonto] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
-  const [passwordInput, setPasswordInput] = useState('');
+  // const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
+  // const [passwordInput, setPasswordInput] = useState('');
+  const [isNipModalVisible, setIsNipModalVisible] = useState(false);
+  const [nipInput, setNipInput] = useState('');
 
   const { selectedCard } = useCard();
   const auth = getAuth();
@@ -49,7 +51,7 @@ const withdraw = () => {
     // Intentar autenticación biométrica
     const biometricResult = await LocalAuthentication.authenticateAsync({
       promptMessage: 'Autenticación requerida',
-      fallbackLabel: 'Usar contraseña',
+      fallbackLabel: 'Usar NIP',
     });
 
     if (biometricResult.success) {
@@ -58,7 +60,7 @@ const withdraw = () => {
     } else {
       // La autenticación biométrica falló o el usuario canceló
       // Solicitar contraseña
-      promptForPassword();
+      promptForNip();
     }
   };
 
@@ -97,22 +99,25 @@ const withdraw = () => {
     }
   };
 
-  const promptForPassword = () => {
-    setIsPasswordModalVisible(true);
+  const promptForNip = () => {
+    setIsNipModalVisible(true);
   };
 
-  const handlePasswordSubmit = async () => {
+  const handleNipSubmit = async () => {
     try {
-      const credential = EmailAuthProvider.credential(currentUser.email, passwordInput);
-      await reauthenticateWithCredential(currentUser, credential);
+      // Comparar el NIP ingresado con el NIP almacenado en la tarjeta seleccionada
+      const nipStored = selectedCard.nip; // NIP almacenado en texto plano
+      if (nipInput === nipStored) {
+        setIsNipModalVisible(false);
+        setNipInput('');
 
-      setIsPasswordModalVisible(false);
-      setPasswordInput('');
-
-      // Autenticación exitosa, proceder con el retiro
-      proceedWithRetiro();
+        // NIP válido, proceder con el retiro
+        proceedWithRetiro();
+      } else {
+        Alert.alert('Error', 'NIP incorrecto. Intenta de nuevo.');
+      }
     } catch (error) {
-      Alert.alert('Error', 'Contraseña incorrecta. Intenta de nuevo.');
+      Alert.alert('Error', 'Hubo un problema al verificar el NIP. Intenta de nuevo.');
     }
   };
 
@@ -147,25 +152,25 @@ const withdraw = () => {
           <Text style={styles.buttonText}>{loading ? 'Procesando...' : 'Realizar Retiro'}</Text>
         </TouchableOpacity>
 
-        {/* Modal para ingresar la contraseña */}
-        <Modal isVisible={isPasswordModalVisible}>
+        {/* Modal para ingresar el NIP */}
+        <Modal isVisible={isNipModalVisible}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Ingresa tu contraseña</Text>
+            <Text style={styles.modalTitle}>Ingresa tu NIP</Text>
             <TextInput
               style={styles.modalInput}
-              placeholder="Contraseña"
+              placeholder="NIP"
               placeholderTextColor="#707070"
               secureTextEntry
-              value={passwordInput}
-              onChangeText={(text) => setPasswordInput(text)}
+              value={nipInput}
+              onChangeText={(text) => setNipInput(text)}
             />
             <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.modalButton} onPress={handlePasswordSubmit}>
+              <TouchableOpacity style={styles.modalButton} onPress={handleNipSubmit}>
                 <Text style={styles.modalButtonText}>Aceptar</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setIsPasswordModalVisible(false)}
+                onPress={() => setIsNipModalVisible(false)}
               >
                 <Text style={styles.modalButtonText}>Cancelar</Text>
               </TouchableOpacity>
