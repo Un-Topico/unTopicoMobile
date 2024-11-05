@@ -21,30 +21,12 @@ export default function TabLayout() {
             },
           }}
         >
-          <Tabs.Screen
-            name="cards"
-            options={{
-              title: 'Mis Tarjetas',
-              tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="credit-card" color={color} />,
-              headerShown: false,
-            }}
-          />
-
           {/* Pestaña de inicio (Home) */}
           <Tabs.Screen
             name="home"
             options={{
               title: 'Home',
               tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="home" color={color} />,
-              headerShown: false,
-            }}
-          />
-
-          <Tabs.Screen
-            name="servicios"
-            options={{
-              title: 'Servicios',
-              tabBarIcon: ({ color }) => <FontAwesome size={iconSize} name="list-alt" color={color} />,
               headerShown: false,
             }}
           />
@@ -154,6 +136,20 @@ export default function TabLayout() {
           />
           <Tabs.Screen
             name="qrScanForm"
+            options={{
+              href: null,
+              headerShown: false,
+            }}
+          />
+          <Tabs.Screen
+            name="servicios"
+            options={{
+              href: null,
+              headerShown: false,
+            }}
+          />
+          <Tabs.Screen
+            name="cards"
             options={{
               href: null,
               headerShown: false,

@@ -71,25 +71,38 @@ const Index = () => {
     router.push('/reportes');
   }
 
+  function handleServicios() {
+    router.push('/servicios');
+  }
+
+  function handleCards() {
+    router.push('/cards');
+  }
+
   return (
     <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContentContainer}>
       <View style={styles.HeadLogo}>
-      <HeadLogo />
-        
+        <HeadLogo />
+
       </View>
-      
+
 
       <View style={styles.UserCards}>
         <UserCards />
       </View>
 
       <View style={styles.Buttoncontainer}>
+
+        <TouchableOpacity style={styles.button} onPress={handleCards}>
+          <IconM name="credit-card" size={40} color="#900" />
+          <Text style={styles.buttonText}>Mis tarjetas</Text>
+        </TouchableOpacity>
+
         {/* Botón de Depositar */}
         <TouchableOpacity style={styles.button} onPress={handleDepositar}>
           <Icon name="download" size={40} color="#900" />
           <Text style={styles.buttonText}>Depositar</Text>
         </TouchableOpacity>
-
 
         {/* Botón de Transferir */}
         <TouchableOpacity style={styles.button} onPress={handleTransferir}>
@@ -113,10 +126,17 @@ const Index = () => {
           <Icon name="qrcode" size={40} color="#900" />
           <Text style={styles.buttonText}>Deposito por QR</Text>
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.button} onPress={handleScanearQR}>
           <IconM name="qr-code-scanner" size={40} color="#900" />
           <Text style={styles.buttonText}>Escanear QR</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={handleServicios}>
+          <IconM name="list-alt" size={40} color="#900" />
+          <Text style={styles.buttonText}>Servicios</Text>
+        </TouchableOpacity>
+
       </View>
     </ScrollView>
   );
