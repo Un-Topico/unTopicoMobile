@@ -229,10 +229,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   datosPerfil: {
-    flexDirection: 'row', // Cambia la dirección a vertical
-    alignItems: 'center',    // Centra los elementos
+    flexDirection: 'row',
+    alignItems: 'center',    
     marginVertical: 20,
-    paddingHorizontal: 20, // Espaciado horizontal
+    marginHorizontal: 10, 
   },
   ViewProfImage: {
     marginRight: 15,
@@ -247,6 +247,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginLeft: 20,
     fontWeight: 'bold',
+    width: '75%',
+    flexWrap: 'wrap',
   },
   ViewSettings: {
     position: 'relative',

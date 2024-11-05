@@ -79,6 +79,17 @@ const Index = () => {
     router.push('/cards');
   }
 
+  function handleApartados() {
+    if (selectedCard) {
+      router.push({
+        pathname: '/apartados',
+        params: { cardId: selectedCard.id },  // Pasa la tarjeta seleccionada a la pantalla de retiro
+      });
+    } else {
+      alert("Por favor selecciona una tarjeta.");
+    }
+  }
+
   return (
     <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContentContainer}>
       <View style={styles.HeadLogo}>
@@ -90,6 +101,10 @@ const Index = () => {
       <View style={styles.UserCards}>
         <UserCards />
       </View>
+
+      <TouchableOpacity style={styles.buttonApartados} onPress={handleApartados}>
+        <Text style={styles.buttonTextApartados}>Apartados</Text>
+      </TouchableOpacity>
 
       <View style={styles.Buttoncontainer}>
 
@@ -183,6 +198,27 @@ const styles = StyleSheet.create({
     color: 'black',
     textAlign: 'center',
     marginTop: 25,
+  },
+  buttonApartados: {
+    width: '90%',
+    height: 40,
+    backgroundColor: 'white', // Color de fondo del botón
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    marginBottom: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 5,
+    elevation: 5,
+
+  },
+  buttonTextApartados: {
+    fontSize: 18,
+    color: 'black',
+    textAlign: 'center',
+    justifyContent: 'center',
   },
 });
 
