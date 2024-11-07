@@ -202,11 +202,14 @@ const styles = StyleSheet.create({
   buttonApartados: {
     width: '90%',
     height: 40,
-    backgroundColor: 'white', // Color de fondo del botón
+    backgroundColor: '#4fd290', 
+    
     alignItems: 'center',
     justifyContent: 'center',
+
     borderRadius: 10,
     marginBottom: 5,
+
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,

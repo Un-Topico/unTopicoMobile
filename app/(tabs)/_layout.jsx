@@ -155,13 +155,13 @@ export default function TabLayout() {
               headerShown: false,
             }}
           />
-          {/* <Tabs.Screen
+          <Tabs.Screen
             name="apartados"
             options={{
               href: null,
               headerShown: false,
             }}
-          /> */}
+          /> 
         </Tabs>
       </CardProvider>
     </GestureHandlerRootView>
