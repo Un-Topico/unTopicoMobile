@@ -15,27 +15,30 @@ const Apartados = () => {
   const [selectedApartado, setSelectedApartado] = useState(null); // Para el apartado seleccionado para retirar dinero
 
   const retirarDinero = async () => {
-    const montoRetirar = parseFloat(amountToWithdraw);
+    let montoRetirar = parseFloat(amountToWithdraw);
+    // Redondeamos el monto a 2 decimales
+    montoRetirar = montoRetirar.toFixed(2);
+  
     if (montoRetirar && montoRetirar > 0 && montoRetirar <= selectedApartado.monto) {
       try {
         // Actualizar el saldo de la tarjeta
-        const nuevoBalance = balance + montoRetirar;
+        const nuevoBalance = balance + parseFloat(montoRetirar); // Convertimos a float
         const cardDocRef = doc(db, 'cards', selectedCard.cardId);
         await updateDoc(cardDocRef, { balance: nuevoBalance });
         setBalance(nuevoBalance);
-
+  
         // Actualizar el apartado
         const apartadosRef = doc(db, `cards/${selectedCard.cardId}/apartados`, selectedApartado.id);
-        await updateDoc(apartadosRef, { monto: selectedApartado.monto - montoRetirar });
-
+        await updateDoc(apartadosRef, { monto: selectedApartado.monto - parseFloat(montoRetirar) });
+  
         // Actualizar el estado local
         const updatedApartados = apartados.map((item) =>
           item.id === selectedApartado.id
-            ? { ...item, monto: item.monto - montoRetirar }
+            ? { ...item, monto: item.monto - parseFloat(montoRetirar) }
             : item
         );
         setApartados(updatedApartados);
-
+  
         alert('Dinero retirado con éxito');
         setModalVisible(false); // Cerrar modal después de realizar el retiro
         setAmountToWithdraw(''); // Limpiar el campo del monto
@@ -46,6 +49,7 @@ const Apartados = () => {
       alert('Monto inválido');
     }
   };
+  
 
   const eliminarApartado = async (apartado) => {
     try {
@@ -92,16 +96,20 @@ const Apartados = () => {
   };
 
   const crearApartado = async () => {
-    const monto = parseFloat(montoApartado);
+    let monto = parseFloat(montoApartado);
+    // Redondeamos el monto a 2 decimales
+    monto = monto.toFixed(2);
+    
     if (nuevoApartado && monto > 0 && balance >= monto) {
       try {
         const newBalance = balance - monto;
         const cardDocRef = doc(db, 'cards', selectedCard.cardId);
         await updateDoc(cardDocRef, { balance: newBalance });
         setBalance(newBalance);
+  
         const apartadosRef = collection(db, `cards/${selectedCard.cardId}/apartados`);
-        await addDoc(apartadosRef, { nombre: nuevoApartado, monto });
-        setApartados([...apartados, { nombre: nuevoApartado, monto }]);
+        await addDoc(apartadosRef, { nombre: nuevoApartado, monto: parseFloat(monto) }); // Convertir a float nuevamente antes de guardarlo
+        setApartados([...apartados, { nombre: nuevoApartado, monto: parseFloat(monto) }]);
         setNuevoApartado('');
         setMontoApartado('');
       } catch (error) {
@@ -111,6 +119,7 @@ const Apartados = () => {
       console.log('Monto inválido o insuficiente balance.');
     }
   };
+  
 
   const getTotalDisponible = () => {
     const totalApartados = apartados.reduce((acc, item) => acc + item.monto, 0);
