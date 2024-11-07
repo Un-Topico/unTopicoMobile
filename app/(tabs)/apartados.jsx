@@ -14,6 +14,7 @@ const Apartados = () => {
   const [amountToWithdraw, setAmountToWithdraw] = useState('');
   const [selectedApartado, setSelectedApartado] = useState(null); // Para el apartado seleccionado para retirar dinero
 
+  const placeholderColor = "black";
   const retirarDinero = async () => {
     let montoRetirar = parseFloat(amountToWithdraw);
     // Redondeamos el monto a 2 decimales
@@ -153,6 +154,7 @@ const Apartados = () => {
             placeholder="Nombre del Apartado"
             value={nuevoApartado}
             onChangeText={setNuevoApartado}
+            placeholderTextColor={placeholderColor}
           />
           <TextInput
             style={styles.input}
@@ -160,6 +162,7 @@ const Apartados = () => {
             value={montoApartado}
             onChangeText={setMontoApartado}
             keyboardType="numeric"
+            placeholderTextColor={placeholderColor}
           />
           <TouchableOpacity style={styles.button} onPress={crearApartado}>
             <Text style={styles.buttonText}>Crear Apartado</Text>
