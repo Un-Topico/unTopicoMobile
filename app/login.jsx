@@ -18,6 +18,7 @@ import { auth } from './utils/firebaseConfig'; // Asegúrate de que la ruta sea 
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
 
+
 export default function LogIn({
   appName = 'Untopico',
   logoSource = require('../assets/images/logo.png'),
@@ -32,16 +33,16 @@ export default function LogIn({
   const [password, setPassword] = useState('');
   const [isBiometricSupported, setIsBiometricSupported] = useState(false);
   const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [isBlocked, setIsBlocked] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     (async () => {
-      // Verificar si el dispositivo soporta autenticación biométrica
       const compatible = await LocalAuthentication.hasHardwareAsync();
       const enrolled = await LocalAuthentication.isEnrolledAsync();
       setIsBiometricSupported(compatible && enrolled);
 
-      // Verificar si el usuario ha habilitado la autenticación biométrica
       const biometricPreference = await SecureStore.getItemAsync('biometricEnabled');
       if (biometricPreference === 'true') {
         setBiometricEnabled(true);
@@ -62,7 +63,6 @@ export default function LogIn({
         const storedEmail = await SecureStore.getItemAsync('userEmail');
         const storedPassword = await SecureStore.getItemAsync('userPassword');
         if (storedEmail && storedPassword) {
-          // Actualizar los campos del formulario
           setEmail(storedEmail);
           setPassword(storedPassword);
 
@@ -103,10 +103,20 @@ export default function LogIn({
       // Navegamos a la pantalla principal después de un breve retraso o cuando el usuario decida
       setTimeout(() => {
         router.push('/home');
-      }, 2000); // Puedes ajustar el tiempo o implementar una mejor lógica
+      }, 2000);
     } catch (error) {
-      const errorMessage = error.message;
-      Alert.alert('Error', errorMessage); // Muestra un mensaje de error
+      setFailedAttempts((prev) => prev + 1);
+
+      if (failedAttempts + 1 >= 3) {
+        Alert.alert('Bloqueado', 'Has alcanzado el número máximo de intentos. Inténtalo de nuevo en 30 segundos.');
+        setIsBlocked(true);
+        setTimeout(() => {
+          setFailedAttempts(0);
+          setIsBlocked(false);
+        }, 30000);
+      } else {
+        Alert.alert('Error', 'Correo o contraseña incorrectos.');
+      }
     }
   };
 
@@ -208,7 +218,7 @@ export default function LogIn({
             )}
 
             <View style={styles.ViewButton}>
-              <TouchableOpacity style={styles.button} onPress={handleLogIn}>
+              <TouchableOpacity style={styles.button} onPress={handleLogIn} disabled={isBlocked}>
                 <Text style={styles.buttonText}>Iniciar Sesión</Text>
               </TouchableOpacity>
             </View>

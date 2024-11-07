@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList } from 'react-native';
+import { Modal, View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, TouchableWithoutFeedback } from 'react-native';
 import { getFirestore, doc, getDoc, updateDoc, collection, addDoc, getDocs, deleteDoc } from 'firebase/firestore';
 import { useCard } from '../context/CardContext';
 
@@ -19,7 +19,7 @@ const Apartados = () => {
     let montoRetirar = parseFloat(amountToWithdraw);
     // Redondeamos el monto a 2 decimales
     montoRetirar = montoRetirar.toFixed(2);
-  
+
     if (montoRetirar && montoRetirar > 0 && montoRetirar <= selectedApartado.monto) {
       try {
         // Actualizar el saldo de la tarjeta
@@ -27,11 +27,11 @@ const Apartados = () => {
         const cardDocRef = doc(db, 'cards', selectedCard.cardId);
         await updateDoc(cardDocRef, { balance: nuevoBalance });
         setBalance(nuevoBalance);
-  
+
         // Actualizar el apartado
         const apartadosRef = doc(db, `cards/${selectedCard.cardId}/apartados`, selectedApartado.id);
         await updateDoc(apartadosRef, { monto: selectedApartado.monto - parseFloat(montoRetirar) });
-  
+
         // Actualizar el estado local
         const updatedApartados = apartados.map((item) =>
           item.id === selectedApartado.id
@@ -39,7 +39,7 @@ const Apartados = () => {
             : item
         );
         setApartados(updatedApartados);
-  
+
         alert('Dinero retirado con éxito');
         setModalVisible(false); // Cerrar modal después de realizar el retiro
         setAmountToWithdraw(''); // Limpiar el campo del monto
@@ -50,7 +50,7 @@ const Apartados = () => {
       alert('Monto inválido');
     }
   };
-  
+
 
   const eliminarApartado = async (apartado) => {
     try {
@@ -98,16 +98,15 @@ const Apartados = () => {
 
   const crearApartado = async () => {
     let monto = parseFloat(montoApartado);
-    // Redondeamos el monto a 2 decimales
     monto = monto.toFixed(2);
-    
+
     if (nuevoApartado && monto > 0 && balance >= monto) {
       try {
         const newBalance = balance - monto;
         const cardDocRef = doc(db, 'cards', selectedCard.cardId);
         await updateDoc(cardDocRef, { balance: newBalance });
         setBalance(newBalance);
-  
+
         const apartadosRef = collection(db, `cards/${selectedCard.cardId}/apartados`);
         await addDoc(apartadosRef, { nombre: nuevoApartado, monto: parseFloat(monto) }); // Convertir a float nuevamente antes de guardarlo
         setApartados([...apartados, { nombre: nuevoApartado, monto: parseFloat(monto) }]);
@@ -120,7 +119,7 @@ const Apartados = () => {
       console.log('Monto inválido o insuficiente balance.');
     }
   };
-  
+
 
   const getTotalDisponible = () => {
     const totalApartados = apartados.reduce((acc, item) => acc + item.monto, 0);
@@ -137,101 +136,103 @@ const Apartados = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.topContent}>
-        <View style={styles.saldoContainer}>
-          <Text style={styles.title}>Saldo de la Tarjeta</Text>
-          {balance !== null ? (
-            <Text style={styles.balance}>${balance}</Text>
-          ) : (
-            <Text style={styles.loading}>Cargando saldo...</Text>
-          )}
-        </View>
-
-        <View style={styles.apartadoForm}>
-          <TextInput
-            style={styles.input}
-            placeholder="Nombre del Apartado"
-            value={nuevoApartado}
-            onChangeText={setNuevoApartado}
-            placeholderTextColor={placeholderColor}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Monto"
-            value={montoApartado}
-            onChangeText={setMontoApartado}
-            keyboardType="numeric"
-            placeholderTextColor={placeholderColor}
-          />
-          <TouchableOpacity style={styles.button} onPress={crearApartado}>
-            <Text style={styles.buttonText}>Crear Apartado</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <Text style={styles.subtitle}>Apartados</Text>
-
-      <FlatList
-        data={apartados}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.apartadoItem}>
-            <Text style={styles.apartadoText}>{item.nombre}: ${item.monto}</Text>
-
-            {/* Botón para retirar dinero o eliminar apartado */}
-            <View style={styles.actionButtons}>
-              <TouchableOpacity
-                style={styles.buttonWithdraw}
-                onPress={() => handleRetirarClick(item)}>
-                <Text style={styles.buttonText}>Retirar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.buttonDelete}
-                onPress={() => eliminarApartado(item)}>
-                <Text style={styles.buttonText}>Eliminar</Text>
-              </TouchableOpacity>
-            </View>
+    <TouchableWithoutFeedback>
+      <View style={styles.container}>
+        <View style={styles.topContent}>
+          <View style={styles.saldoContainer}>
+            <Text style={styles.title}>Saldo de la Tarjeta</Text>
+            {balance !== null ? (
+              <Text style={styles.balance}>${balance}</Text>
+            ) : (
+              <Text style={styles.loading}>Cargando saldo...</Text>
+            )}
           </View>
-        )}
-        contentContainerStyle={styles.flatListContent}
-        keyboardShouldPersistTaps="handled"
-      />
 
-      <View style={styles.totalContainer}>
-        <Text style={styles.totalText}>Total Disponible: ${getTotalDisponible()}</Text>
-      </View>
-
-      {/* Modal para retirar dinero */}
-      <Modal
-        visible={modalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setModalVisible(false)}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Retirar Dinero</Text>
+          <View style={styles.apartadoForm}>
             <TextInput
               style={styles.input}
-              placeholder="Monto a retirar"
-              value={amountToWithdraw}
-              onChangeText={setAmountToWithdraw}
-              keyboardType="numeric"
+              placeholder="Nombre del Apartado"
+              value={nuevoApartado}
+              onChangeText={setNuevoApartado}
+              placeholderTextColor={placeholderColor}
             />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.button} onPress={retirarDinero}>
-                <Text style={styles.buttonText}>Confirmar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => setModalVisible(false)}>
-                <Text style={styles.buttonText}>Cancelar</Text>
-              </TouchableOpacity>
-            </View>
+            <TextInput
+              style={styles.input}
+              placeholder="Monto"
+              value={montoApartado}
+              onChangeText={setMontoApartado}
+              keyboardType="numeric"
+              placeholderTextColor={placeholderColor}
+            />
+            <TouchableOpacity style={styles.button} onPress={crearApartado}>
+              <Text style={styles.buttonText}>Crear Apartado</Text>
+            </TouchableOpacity>
           </View>
         </View>
-      </Modal>
-    </View>
+
+        <Text style={styles.subtitle}>Apartados</Text>
+
+        <FlatList
+          data={apartados}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.apartadoItem}>
+              <Text style={styles.apartadoText}>{item.nombre}: ${item.monto}</Text>
+
+              {/* Botón para retirar dinero o eliminar apartado */}
+              <View style={styles.actionButtons}>
+                <TouchableOpacity
+                  style={styles.buttonWithdraw}
+                  onPress={() => handleRetirarClick(item)}>
+                  <Text style={styles.buttonText}>Retirar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.buttonDelete}
+                  onPress={() => eliminarApartado(item)}>
+                  <Text style={styles.buttonText}>Eliminar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+          contentContainerStyle={styles.flatListContent}
+          keyboardShouldPersistTaps="handled"
+        />
+
+        <View style={styles.totalContainer}>
+          <Text style={styles.totalText}>Total Disponible: ${getTotalDisponible()}</Text>
+        </View>
+
+        {/* Modal para retirar dinero */}
+        <Modal
+          visible={modalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setModalVisible(false)}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Retirar Dinero</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Monto a retirar"
+                value={amountToWithdraw}
+                onChangeText={setAmountToWithdraw}
+                keyboardType="numeric"
+              />
+              <View style={styles.modalButtons}>
+                <TouchableOpacity style={styles.button} onPress={retirarDinero}>
+                  <Text style={styles.buttonText}>Confirmar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => setModalVisible(false)}>
+                  <Text style={styles.buttonText}>Cancelar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
