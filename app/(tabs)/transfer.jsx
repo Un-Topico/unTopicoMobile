@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Keyboard,
   TouchableWithoutFeedback,
+  ScrollView,
 } from 'react-native';
 import {
   getFirestore,
@@ -23,11 +24,13 @@ import {
 import { useRouter } from 'expo-router';
 import { getAuth, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 import { useCard } from '../context/CardContext'; // Importar el contexto de la tarjeta seleccionada
-import Contacts from '../components/contacts';
+import Contacts2 from '../components/contacts2';
 import * as LocalAuthentication from 'expo-local-authentication';
 import Modal from 'react-native-modal';
 
-const Transferir = () => {
+import AddContactButton from '../components/addContact';
+
+const transfer = () => {
   const [email, setEmail] = useState('');
   const [clabe, setClabe] = useState('');
   const [monto, setMonto] = useState('');
@@ -255,93 +258,110 @@ const Transferir = () => {
   const isEmailDisabled = clabe !== '';
   const isClabeDisabled = email !== '';
 
+  function handleNavigate_AddContact() {
+    router.navigate({
+      pathname: '/addContact',
+    });
+  }
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Transferir</Text>
+      <ScrollView style={styles.container}>
+        <View >
+          <Text style={styles.title}>Transferir</Text>
 
-        {/* Campo de correo electrónico */}
-        <TextInput
-          style={styles.input}
-          placeholder="Ingrese correo electrónico de destino"
-          placeholderTextColor="#707070"
-          value={email}
-          onChangeText={(text) => setEmail(text)}
-          editable={!isEmailDisabled}
-          keyboardType="email-address"
-        />
+          <Text style={styles.title2}>¿A quién quieres transferir?</Text>
+          {/* Componente de contactos */}
+          <AddContactButton
+            db={db}
+            onPress={() => {
+              handleNavigate_AddContact();
+            }
+            } />
+          <Contacts2 currentUser={currentUser} onContactSelect={handleContactSelect} />
 
-        {/* Campo de CLABE */}
-        <TextInput
-          style={styles.input}
-          placeholder="Ingrese CLABE de destino"
-          placeholderTextColor="#707070"
-          value={clabe}
-          onChangeText={(text) => setClabe(text)}
-          editable={!isClabeDisabled}
-          keyboardType="numeric"
-        />
+          <Text style={styles.title2}>Transferir:</Text>
+          {/* Campo de correo electrónico */}
+          <TextInput
+            style={styles.input}
+            placeholder="Ingrese correo electrónico de destino"
+            placeholderTextColor="#707070"
+            value={email}
+            onChangeText={(text) => setEmail(text)}
+            editable={!isEmailDisabled}
+            keyboardType="email-address"
+          />
 
-        {/* Campo de monto */}
-        <TextInput
-          style={styles.input}
-          placeholder="Ingrese el monto"
-          placeholderTextColor="#707070"
-          value={monto}
-          onChangeText={(text) => setMonto(text)}
-          keyboardType="numeric"
-        />
+          {/* Campo de CLABE */}
+          <TextInput
+            style={styles.input}
+            placeholder="Ingrese CLABE de destino"
+            placeholderTextColor="#707070"
+            value={clabe}
+            onChangeText={(text) => setClabe(text)}
+            editable={!isClabeDisabled}
+            keyboardType="numeric"
+          />
 
-        {/* Campo de descripción */}
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          placeholder="Descripción breve (opcional)"
-          placeholderTextColor="#707070"
-          value={descripcion}
-          onChangeText={(text) => setDescripcion(text)}
-          multiline
-          numberOfLines={3}
-        />
+          {/* Campo de monto */}
+          <TextInput
+            style={styles.input}
+            placeholder="Ingrese el monto"
+            placeholderTextColor="#707070"
+            value={monto}
+            onChangeText={(text) => setMonto(text)}
+            keyboardType="numeric"
+          />
 
-        {/* Componente de contactos */}
-        <Contacts currentUser={currentUser} onContactSelect={handleContactSelect} />
+          {/* Campo de descripción */}
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            placeholder="Descripción breve (opcional)"
+            placeholderTextColor="#707070"
+            value={descripcion}
+            onChangeText={(text) => setDescripcion(text)}
+            multiline
+            numberOfLines={3}
+          />
 
-        {/* Botón para realizar la transferencia */}
-        <TouchableOpacity style={styles.button} onPress={handleTransferencia} disabled={loading}>
-          <Text style={styles.buttonText}>
-            {loading ? <ActivityIndicator color="#fff" /> : 'Transferir'}
-          </Text>
-        </TouchableOpacity>
+          {/* Botón para realizar la transferencia */}
+          <TouchableOpacity style={styles.button} onPress={handleTransferencia} disabled={loading}>
+            <Text style={styles.buttonText}>
+              {loading ? <ActivityIndicator color="#fff" /> : 'Transferir'}
+            </Text>
+          </TouchableOpacity>
 
-        {success && <Text style={styles.successText}>{success}</Text>}
-        {error && <Text style={styles.errorText}>{error}</Text>}
+          {success && <Text style={styles.successText}>{success}</Text>}
+          {error && <Text style={styles.errorText}>{error}</Text>}
 
-        {/* Modal para ingresar la contraseña */}
-        <Modal isVisible={isPasswordModalVisible}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Ingresa tu contraseña</Text>
-            <TextInput
-              style={styles.modalInput}
-              placeholder="Contraseña"
-              placeholderTextColor="#707070"
-              secureTextEntry
-              value={passwordInput}
-              onChangeText={(text) => setPasswordInput(text)}
-            />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.modalButton} onPress={handlePasswordSubmit}>
-                <Text style={styles.modalButtonText}>Aceptar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setIsPasswordModalVisible(false)}
-              >
-                <Text style={styles.modalButtonText}>Cancelar</Text>
-              </TouchableOpacity>
+          {/* Modal para ingresar la contraseña */}
+          <Modal isVisible={isPasswordModalVisible}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Ingresa tu contraseña</Text>
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Contraseña"
+                placeholderTextColor="#707070"
+                secureTextEntry
+                value={passwordInput}
+                onChangeText={(text) => setPasswordInput(text)}
+              />
+              <View style={styles.modalButtons}>
+                <TouchableOpacity style={styles.modalButton} onPress={handlePasswordSubmit}>
+                  <Text style={styles.modalButtonText}>Aceptar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={() => setIsPasswordModalVisible(false)}
+                >
+                  <Text style={styles.modalButtonText}>Cancelar</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        </Modal>
-      </View>
+          </Modal>
+        </View>
+      </ScrollView>
+
     </TouchableWithoutFeedback>
   );
 };
@@ -351,13 +371,17 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
+  },
+  title2: {
+    fontSize: 20,
+    marginTop: 20,
+    marginBottom: 10,
   },
   input: {
     height: 50,
@@ -433,4 +457,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Transferir;
+export default transfer;
