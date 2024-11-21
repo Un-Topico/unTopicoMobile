@@ -14,10 +14,12 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from './utils/firebaseConfig'; // Asegúrate de que la ruta sea correcta
+import { auth } from './utils/firebaseConfig';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
 
+const MAX_ATTEMPTS = 3;
+const BLOCK_TIME_MS = 30000; // 30 segundos
 
 export default function LogIn({
   appName = 'Untopico',
@@ -26,7 +28,7 @@ export default function LogIn({
   title2 = 'Iniciar Sesión',
   question1 = '¿Aún no tienes cuenta?',
   answer1 = 'Crea tu cuenta',
-  googlesource = require('../assets/images/Google.png'), // Imagen de Google
+  googlesource = require('../assets/images/Google.png'),
   forgotText = '¿Olvidaste tu contraseña?',
 }) {
   const [email, setEmail] = useState('');
@@ -35,21 +37,59 @@ export default function LogIn({
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [isBlocked, setIsBlocked] = useState(false);
+  const [remainingTime, setRemainingTime] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
     (async () => {
+      // Verificar si el usuario está bloqueado
+      const unblockTime = await SecureStore.getItemAsync('unblockTime');
+      if (unblockTime && new Date().getTime() < parseInt(unblockTime, 10)) {
+        setIsBlocked(true);
+        const remainingTime = parseInt(unblockTime, 10) - new Date().getTime();
+        setTimeout(() => setIsBlocked(false), remainingTime);
+        return; // Evitamos continuar si está bloqueado
+      }
+
+      // Verificar soporte de biometria
       const compatible = await LocalAuthentication.hasHardwareAsync();
       const enrolled = await LocalAuthentication.isEnrolledAsync();
       setIsBiometricSupported(compatible && enrolled);
 
+      // Cargar preferencia de biometría
       const biometricPreference = await SecureStore.getItemAsync('biometricEnabled');
       if (biometricPreference === 'true') {
         setBiometricEnabled(true);
         handleBiometricLogin();
       }
+
+      // Verificar estado de bloqueo persistente
+      const blockUntil = await SecureStore.getItemAsync('blockUntil');
+      const currentTime = Date.now();
+      if (blockUntil && currentTime < parseInt(blockUntil, 10)) {
+        setIsBlocked(true);
+        const remaining = parseInt(blockUntil, 10) - currentTime;
+        setRemainingTime(Math.ceil(remaining / 1000));
+        setTimeout(() => setIsBlocked(false), remaining);
+      }
     })();
   }, []);
+
+  useEffect(() => {
+    let interval;
+    if (isBlocked) {
+      interval = setInterval(() => {
+        setRemainingTime((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isBlocked]);
 
   const handleBiometricLogin = async () => {
     try {
@@ -59,22 +99,12 @@ export default function LogIn({
       });
 
       if (result.success) {
-        // Recuperar las credenciales almacenadas
         const storedEmail = await SecureStore.getItemAsync('userEmail');
         const storedPassword = await SecureStore.getItemAsync('userPassword');
         if (storedEmail && storedPassword) {
-          setEmail(storedEmail);
-          setPassword(storedPassword);
-
-          // Iniciar sesión con Firebase
           signInWithEmailAndPassword(auth, storedEmail, storedPassword)
-            .then((userCredential) => {
-              router.push('/home'); // Navega a la pantalla de inicio
-            })
-            .catch((error) => {
-              const errorMessage = error.message;
-              Alert.alert('Error', errorMessage); // Muestra un mensaje de error
-            });
+            .then(() => router.push('/home'))
+            .catch((error) => Alert.alert('Error', error.message));
         }
       } else {
         Alert.alert('Autenticación fallida', 'No se pudo autenticar usando biometría.');
@@ -85,34 +115,38 @@ export default function LogIn({
   };
 
   const handleLogIn = async () => {
+    if (isBlocked) return;
+  
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      // Si la biometría está habilitada, almacenamos las credenciales
+  
       if (isBiometricSupported && biometricEnabled) {
-        // Almacenar las credenciales de forma segura
         await SecureStore.setItemAsync('userEmail', email);
         await SecureStore.setItemAsync('userPassword', password);
         await SecureStore.setItemAsync('biometricEnabled', 'true');
       } else {
-        // Si la biometría no está habilitada, eliminar credenciales almacenadas
         await SecureStore.deleteItemAsync('userEmail');
         await SecureStore.deleteItemAsync('userPassword');
         await SecureStore.deleteItemAsync('biometricEnabled');
       }
-
-      // Navegamos a la pantalla principal después de un breve retraso o cuando el usuario decida
+  
       setTimeout(() => {
         router.push('/home');
       }, 2000);
     } catch (error) {
       setFailedAttempts((prev) => prev + 1);
-
+  
       if (failedAttempts + 1 >= 3) {
         Alert.alert('Bloqueado', 'Has alcanzado el número máximo de intentos. Inténtalo de nuevo en 30 segundos.');
         setIsBlocked(true);
+  
+        const unblockTime = new Date().getTime() + 30000; // 30 segundos de bloqueo
+        await SecureStore.setItemAsync('unblockTime', unblockTime.toString());
+  
         setTimeout(() => {
           setFailedAttempts(0);
           setIsBlocked(false);
+          SecureStore.deleteItemAsync('unblockTime');
         }, 30000);
       } else {
         Alert.alert('Error', 'Correo o contraseña incorrectos.');
@@ -122,9 +156,6 @@ export default function LogIn({
 
   const toggleBiometric = async () => {
     if (!biometricEnabled) {
-      // El usuario está intentando habilitar la autenticación biométrica
-
-      // Verificar que el email y la contraseña estén ingresados
       if (!email || !password) {
         Alert.alert('Error', 'Por favor, ingresa tu email y contraseña antes de habilitar la autenticación biométrica.');
         return;
@@ -138,20 +169,15 @@ export default function LogIn({
       if (result.success) {
         setBiometricEnabled(true);
         await SecureStore.setItemAsync('biometricEnabled', 'true');
-
-        // Almacenar las credenciales de forma segura
         await SecureStore.setItemAsync('userEmail', email);
         await SecureStore.setItemAsync('userPassword', password);
         Alert.alert('Éxito', 'La autenticación biométrica ha sido habilitada.');
       } else {
         Alert.alert('Autenticación fallida', 'No se pudo habilitar la autenticación biométrica.');
-        // Mantener el interruptor en false
         setBiometricEnabled(false);
       }
     } else {
-      // El usuario está deshabilitando la autenticación biométrica
       setBiometricEnabled(false);
-      // Eliminar las credenciales almacenadas
       await SecureStore.deleteItemAsync('userEmail');
       await SecureStore.deleteItemAsync('userPassword');
       await SecureStore.setItemAsync('biometricEnabled', 'false');
@@ -179,10 +205,10 @@ export default function LogIn({
           <View style={styles.overlay}></View>
           <Image style={styles.logo} source={logoSource} />
           <Text style={styles.title}>{appName}</Text>
-
+  
           <View style={styles.inputContainer}>
             <Text style={styles.title2}>{title2}</Text>
-
+  
             <TextInput
               style={styles.TextInput}
               placeholder="Email"
@@ -202,27 +228,32 @@ export default function LogIn({
               onChangeText={(text) => setPassword(text)}
               value={password}
             />
-
+  
+            {isBlocked && (
+              <Text style={styles.blockedText}>
+                Has sido bloqueado. Intenta de nuevo más tarde.
+              </Text>
+            )}
+  
             <View style={styles.ViewForgotPassword}>
               <Text style={styles.forgotPasswordText} onPress={handleForgotLink}>
                 {forgotText}
               </Text>
             </View>
-
-            {/* Opción para habilitar autenticación biométrica */}
+  
             {isBiometricSupported && (
               <View style={styles.biometricContainer}>
                 <Text style={styles.biometricText}>Habilitar autenticación biométrica</Text>
-                <Switch value={biometricEnabled} onValueChange={toggleBiometric} />
+                <Switch value={biometricEnabled} onValueChange={toggleBiometric} disabled={isBlocked} />
               </View>
             )}
-
+  
             <View style={styles.ViewButton}>
               <TouchableOpacity style={styles.button} onPress={handleLogIn} disabled={isBlocked}>
                 <Text style={styles.buttonText}>Iniciar Sesión</Text>
               </TouchableOpacity>
             </View>
-
+  
             <View>
               <Text style={styles.text1}>
                 {question1}{' '}
@@ -231,14 +262,13 @@ export default function LogIn({
                 </Text>
               </Text>
             </View>
-
-            {/* Divisor y botón de Google */}
+  
             <View style={styles.dividerContainer}>
               <View style={styles.line} />
               <Text style={styles.orText}>o</Text>
               <View style={styles.line} />
             </View>
-
+  
             <View style={styles.ViewButton}>
               <TouchableOpacity style={styles.button_Google}>
                 <Image style={styles.Google_img} source={googlesource} />
@@ -251,7 +281,6 @@ export default function LogIn({
     </KeyboardAvoidingView>
   );
 }
-
 // Estilos
 const styles = StyleSheet.create({
   container: {
@@ -388,5 +417,11 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: 'black',
+  },
+  blockedText: {
+    fontSize: 16,
+    color: 'red',
+    textAlign: 'center',
+    marginVertical: 10,
   },
 });
