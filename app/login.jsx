@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
   },
   blockedText: {
     fontSize: 16,
-    color: 'red',
+    color: '#ff2d00',
     textAlign: 'center',
     marginVertical: 10,
   },
